@@ -1,11 +1,12 @@
 package com.sparta.myvoyageblog.controller;
 
 import com.sparta.myvoyageblog.dto.SignupRequestDto;
-import com.sparta.myvoyageblog.dto.UserResponseDto;
 import com.sparta.myvoyageblog.dto.UserInfoDto;
+import com.sparta.myvoyageblog.dto.UserResponseDto;
 import com.sparta.myvoyageblog.entity.UserRoleEnum;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import com.sparta.myvoyageblog.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,20 +26,27 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/user/signup")
-    public UserResponseDto signup(@RequestBody @Valid SignupRequestDto requestDto, BindingResult bindingResult) {
+    public UserResponseDto signup(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult, HttpServletResponse response) {
         // Validation 예외처리
         List<FieldError> fieldErrors = bindingResult.getFieldErrors();
         if(fieldErrors.size() > 0) {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
             }
-            UserResponseDto failureResponse = new UserResponseDto("회원가입","실패", 400);
-            return failureResponse;
+            response.setStatus(400);
+            UserResponseDto failureSignup = new UserResponseDto("회원가입", "실패", response.getStatus());
+            return failureSignup;
+        } else {
+            userService.signup(requestDto);
+
+            UserResponseDto succeessSignup = new UserResponseDto("회원가입", "성공", response.getStatus());
+            return succeessSignup;
         }
+    }
 
-        userService.signup(requestDto);
-
-        UserResponseDto succeessResponse = new UserResponseDto("회원가입", "성공", 200);
+    @PostMapping("/user/login")
+    public UserResponseDto login(HttpServletResponse response) {
+        UserResponseDto succeessResponse = new UserResponseDto("로그인", "성공", response.getStatus());
         return succeessResponse;
     }
 
