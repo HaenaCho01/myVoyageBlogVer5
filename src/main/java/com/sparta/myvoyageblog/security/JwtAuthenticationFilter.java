@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.myvoyageblog.dto.LoginRequestDto;
 import com.sparta.myvoyageblog.entity.UserRoleEnum;
 import com.sparta.myvoyageblog.jwt.JwtUtil;
-import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,7 +1,6 @@
 package com.sparta.myvoyageblog.security;
 
 import com.sparta.myvoyageblog.jwt.JwtUtil;
-import com.sparta.myvoyageblog.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

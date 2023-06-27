@@ -5,10 +5,7 @@ import com.sparta.myvoyageblog.dto.PostResponseDto;
 import com.sparta.myvoyageblog.entity.Post;
 import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.repository.PostRepository;
-import com.sparta.myvoyageblog.security.UserDetailsImpl;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

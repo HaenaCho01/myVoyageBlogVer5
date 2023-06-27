@@ -1,7 +1,6 @@
 package com.sparta.myvoyageblog.entity;
 
 import com.sparta.myvoyageblog.dto.PostRequestDto;
-import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
