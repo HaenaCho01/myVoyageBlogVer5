@@ -6,7 +6,9 @@ import com.sparta.myvoyageblog.entity.Post;
 import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.repository.PostRepository;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,27 +30,24 @@ public class PostService {
     }
 
     public List<PostResponseDto> getPosts(User user) {
-        return postRepository.findAllByUsernameOrderByCreatedAtDesc(user.getUsername()).stream().map(PostResponseDto::new).toList();
+        return postRepository.findAllByUserOrderByCreatedAtDesc(user).stream().map(PostResponseDto::new).toList();
     }
 
     @Transactional
     public PostResponseDto getPostById(Long id, User user) {
-        Post post = checkUser(findPost(id), user.getUsername());
-        PostResponseDto postResponseDto = new PostResponseDto(post);
-        return postResponseDto;
+        PostResponseDto responseDto = new PostResponseDto(checkUser(id, user));
+        return responseDto;
     }
 
     @Transactional
     public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
-        Post post = checkUser(findPost(id), user.getUsername());
-        post.update(requestDto, user);
-        PostResponseDto postResponseDto = new PostResponseDto(post);
+        checkUser(id, user).update(requestDto, user);
+        PostResponseDto postResponseDto = new PostResponseDto(findPost(id));
         return postResponseDto;
     }
 
     public void deletePost(Long id, @AuthenticationPrincipal User user) {
-        Post post = checkUser(findPost(id), user.getUsername());
-        postRepository.delete(post);
+        postRepository.delete(checkUser(id, user));
     }
 
     private Post findPost(Long id) {
@@ -57,11 +56,12 @@ public class PostService {
         );
     }
 
-    private Post checkUser(Post selectPost, String username) {
-        if (username.equals(selectPost.getUsername())) {
-            return selectPost;
+    private Post checkUser(Long selectId, User user) {
+        Post post = findPost(selectId);
+        if (post.getUser().getUsername().equals(user.getUsername())) {
+            return post;
         } else {
-            throw new IllegalArgumentException("해당 게시글에 대한 권한이 없습니다.");
+            throw new IllegalArgumentException("해당 게시글에 관한 권한이 없습니다.");
         }
     }
 }

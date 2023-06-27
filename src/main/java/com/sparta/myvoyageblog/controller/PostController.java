@@ -2,7 +2,6 @@ package com.sparta.myvoyageblog.controller;
 
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.dto.PostResponseDto;
-import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import com.sparta.myvoyageblog.service.PostService;
 import lombok.RequiredArgsConstructor;
