@@ -25,6 +25,7 @@ public class UserController {
 
     private final UserService userService;
 
+    // 회원가입
     @PostMapping("/user/signup")
     public UserResponseDto signup(@Valid @RequestBody SignupRequestDto requestDto, BindingResult bindingResult, HttpServletResponse response) {
         // Validation 예외처리
@@ -44,12 +45,14 @@ public class UserController {
         }
     }
 
+    // 로그인 성공 시 Reponse Body 반환
     @GetMapping("/user/login/success")
     public UserResponseDto loginSucceess(HttpServletResponse response) {
         UserResponseDto succeessResponse = new UserResponseDto("로그인", "성공", response.getStatus());
         return succeessResponse;
     }
 
+    // 로그인 실패 시 Reponse Body 반환
     @GetMapping("/user/login/unsuccess")
     public UserResponseDto loginUnsucceess(HttpServletResponse response) {
         response.setStatus(401);
@@ -67,11 +70,4 @@ public class UserController {
 
         return new UserInfoDto(username, isAdmin);
     }
-
-//    @GetMapping("/user-post")
-//    public String getUserInfo(Model model, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        model.addAttribute("folders", folderService.getFolders(userDetails.getUser()));
-//
-//        return "index :: #fragment";
-//    }
 }

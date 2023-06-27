@@ -42,6 +42,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
     }
 
+    // 로그인 성공 시
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
@@ -52,6 +53,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.sendRedirect("/api/user/login/success");
     }
 
+    // 로그인 실패 시
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
         response.setStatus(401);
