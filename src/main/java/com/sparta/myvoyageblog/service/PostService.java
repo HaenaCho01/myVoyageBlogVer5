@@ -3,7 +3,10 @@ package com.sparta.myvoyageblog.service;
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.dto.PostResponseDto;
 import com.sparta.myvoyageblog.entity.Post;
+import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.repository.PostRepository;
+import com.sparta.myvoyageblog.security.UserDetailsImpl;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,41 +20,34 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public PostResponseDto createPost(PostRequestDto requestDto) {
-        Post post = new Post(requestDto);
-
+    public PostResponseDto createPost(PostRequestDto requestDto, User user) {
+        Post post = new Post(requestDto, user);
         Post savePost = postRepository.save(post);
-
-        PostResponseDto postResponseDto = new PostResponseDto(post);
-
+        PostResponseDto postResponseDto = new PostResponseDto(savePost);
         return postResponseDto;
     }
 
-    public List<PostResponseDto> getPosts() {
-        return postRepository.findAllByOrderByCreatedAtDesc().stream().map(PostResponseDto::new).toList();
+    public List<PostResponseDto> getPosts(User user) {
+        return postRepository.findAllByUsernameOrderByCreatedAtDesc(user.getUsername()).stream().map(PostResponseDto::new).toList();
     }
 
     @Transactional
-    public PostResponseDto getPostById(Long id) {
-        Post post = postRepository.getById(id);
+    public PostResponseDto getPostById(Long id, User user) {
+        Post post = checkUser(findPost(id), user.getUsername());
         PostResponseDto postResponseDto = new PostResponseDto(post);
         return postResponseDto;
     }
 
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto requestDto) {
-        Post post = checkPassword(findPost(id), requestDto.getPassword());
-
-        post.update(requestDto);
-
+    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
+        Post post = checkUser(findPost(id), user.getUsername());
+        post.update(requestDto, user);
         PostResponseDto postResponseDto = new PostResponseDto(post);
-
         return postResponseDto;
     }
 
-    public void deletePost(Long id, String requestPassword) {
-        Post post = checkPassword(findPost(id), requestPassword);
-
+    public void deletePost(Long id, @AuthenticationPrincipal User user) {
+        Post post = checkUser(findPost(id), user.getUsername());
         postRepository.delete(post);
     }
 
@@ -61,11 +57,11 @@ public class PostService {
         );
     }
 
-    private Post checkPassword(Post selectPost, String requestPassword) {
-        if (requestPassword.equals(selectPost.getPassword())) {
+    private Post checkUser(Post selectPost, String username) {
+        if (username.equals(selectPost.getUsername())) {
             return selectPost;
         } else {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new IllegalArgumentException("해당 게시글에 대한 권한이 없습니다.");
         }
     }
 }
