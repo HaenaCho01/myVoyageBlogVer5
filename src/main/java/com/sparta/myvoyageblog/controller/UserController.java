@@ -41,6 +41,7 @@ public class UserController {
         }
     }
 
+    // 회원가입 후 Reponse Body에 상태 반환하기
     private UserResponseDto statusResponse (HttpServletResponse response, String message) {
         return new UserResponseDto("회원가입", message, response.getStatus());
     }
