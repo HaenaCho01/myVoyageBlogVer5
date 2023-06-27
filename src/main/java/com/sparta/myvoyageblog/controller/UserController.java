@@ -44,9 +44,16 @@ public class UserController {
         }
     }
 
-    @PostMapping("/user/login")
-    public UserResponseDto login(HttpServletResponse response) {
+    @GetMapping("/user/login/success")
+    public UserResponseDto loginSucceess(HttpServletResponse response) {
         UserResponseDto succeessResponse = new UserResponseDto("로그인", "성공", response.getStatus());
+        return succeessResponse;
+    }
+
+    @GetMapping("/user/login/unsuccess")
+    public UserResponseDto loginUnsucceess(HttpServletResponse response) {
+        response.setStatus(401);
+        UserResponseDto succeessResponse = new UserResponseDto("로그인", "실패", response.getStatus());
         return succeessResponse;
     }
 
