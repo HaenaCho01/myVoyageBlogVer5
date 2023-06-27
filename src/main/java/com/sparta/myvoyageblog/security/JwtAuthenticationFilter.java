@@ -1,7 +1,9 @@
 package com.sparta.myvoyageblog.security;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.myvoyageblog.dto.LoginRequestDto;
+import com.sparta.myvoyageblog.dto.UserResponseDto;
 import com.sparta.myvoyageblog.entity.UserRoleEnum;
 import com.sparta.myvoyageblog.jwt.JwtUtil;
 import jakarta.servlet.FilterChain;
@@ -50,14 +52,25 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String token = jwtUtil.createToken(username, role);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
-        response.sendRedirect("/api/user/login/success");
+
+        statusResponse(response, "성공");
     }
 
     // 로그인 실패 시
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
         response.setStatus(401);
-        response.sendRedirect("/api/user/login/unsuccess");
+        statusResponse(response, "실패");
+    }
+
+    // Response Body에 상태 담아 반환하기
+    private void statusResponse (HttpServletResponse response, String message) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("utf-8");
+        UserResponseDto responseDto = new UserResponseDto("로그인", message, response.getStatus());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String result = objectMapper.writeValueAsString(responseDto);
+        response.getWriter().write(result);
     }
 
 }
