@@ -1,7 +1,6 @@
 package com.sparta.myvoyageblog.dto;
 
 import com.sparta.myvoyageblog.entity.Comment;
-import com.sparta.myvoyageblog.entity.Post;
 import lombok.Getter;
 
 import java.time.LocalDateTime;

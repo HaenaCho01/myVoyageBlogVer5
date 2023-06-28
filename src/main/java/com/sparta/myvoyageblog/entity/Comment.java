@@ -1,7 +1,6 @@
 package com.sparta.myvoyageblog.entity;
 
 import com.sparta.myvoyageblog.dto.CommentRequestDto;
-import com.sparta.myvoyageblog.repository.PostRepository;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,7 +29,7 @@ public class Comment extends Timestamped {
     private User user;
 
     public Comment(Post post, CommentRequestDto requestDto, User user) {
-        this.post = post; // request에서 작성된 Id에 따른 포스트 가져와야하는데...
+        this.post = post;
         this.comment = requestDto.getComment();
         this.user = user;
     }
