@@ -30,6 +30,6 @@ public class CommentController {
     @DeleteMapping("/comments/{id}")
     public String deleteComment(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         commentService.deleteComment(id, userDetails.getUser());
-        return "해당 게시글이 삭제되었습니다.";
+        return "해당 댓글이 삭제되었습니다.";
     }
 }

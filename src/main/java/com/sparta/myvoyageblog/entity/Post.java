@@ -28,12 +28,12 @@ public class Post extends Timestamped {
 
     public Post(PostRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();
-        this.content = requestDto.getContents();
+        this.content = requestDto.getContent();
         this.user = user;
     }
 
     public void update(PostRequestDto requestDto) {
         this.title = requestDto.getTitle();
-        this.content = requestDto.getContents();
+        this.content = requestDto.getContent();
     }
 }

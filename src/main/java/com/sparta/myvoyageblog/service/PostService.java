@@ -9,14 +9,17 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class PostService {
     private final PostRepository postRepository;
+    private final CommentService commentService;
 
-    public PostService(PostRepository postRepository) {
+    public PostService(PostRepository postRepository, CommentService commentService) {
         this.postRepository = postRepository;
+        this.commentService = commentService;
     }
 
     // 게시글 작성
@@ -34,9 +37,11 @@ public class PostService {
 
     // 선택한 게시글 조회
     @Transactional
-    public PostResponseDto getPostById(Long id) {
-        PostResponseDto responseDto = new PostResponseDto(findPost(id));
-        return responseDto;
+    public List<Object> getPostById(Long id) {
+        List<Object> postAndComments = new ArrayList<>();
+        postAndComments.add(new PostResponseDto(findPost(id)));
+        postAndComments.add(commentService.getComments(id));
+        return postAndComments;
     }
 
     // 선택한 게시글 수정

@@ -12,6 +12,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -40,6 +42,11 @@ public class CommentService {
     public void deleteComment(Long id, @AuthenticationPrincipal User user) {
         commentRepository.delete(checkUser(id, user));
     }
+
+	// 선택한 게시글에 대한 댓글 조회
+	public List<CommentResponseDto> getComments(Long postid) {
+		return commentRepository.findAllByPost_idOrderByCreatedAtDesc(postid).stream().map(CommentResponseDto::new).toList();
+	}
 
     // id에 따른 댓글 찾기
     private Comment findComment(Long id) {

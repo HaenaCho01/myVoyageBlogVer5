@@ -30,7 +30,7 @@ public class PostController {
 
     // 선택한 게시글 조회
     @GetMapping("/posts/{id}")
-    public PostResponseDto getPostById(@PathVariable Long id) {
+    public List<Object> getPostById(@PathVariable Long id) {
         return postService.getPostById(id);
     }
 
