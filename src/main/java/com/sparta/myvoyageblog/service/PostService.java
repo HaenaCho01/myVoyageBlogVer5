@@ -42,7 +42,7 @@ public class PostService {
     // 선택한 게시글 수정
     @Transactional
     public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
-        checkUser(id, user).update(requestDto, user);
+        checkUser(id, user).update(requestDto);
         PostResponseDto postResponseDto = new PostResponseDto(findPost(id));
         return postResponseDto;
     }
@@ -59,10 +59,10 @@ public class PostService {
         );
     }
 
-    // 선택한 게시글의 사용자가 맞는지 확인하기
+    // 선택한 게시글의 사용자가 맞는지 혹은 관리자인지 확인하기
     private Post checkUser(Long selectId, User user) {
         Post post = findPost(selectId);
-        if (post.getUser().getUsername().equals(user.getUsername())) {
+        if (post.getUser().getUsername().equals(user.getUsername()) || user.getRole().getAuthority().equals("ROLE_ADMIN")) {
             return post;
         } else {
             throw new IllegalArgumentException("해당 게시글에 관한 권한이 없습니다.");
