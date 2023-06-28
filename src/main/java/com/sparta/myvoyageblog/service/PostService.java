@@ -28,14 +28,14 @@ public class PostService {
     }
 
     // 전체 게시글 목록 조회
-    public List<PostResponseDto> getPosts(User user) {
-        return postRepository.findAllByUserOrderByCreatedAtDesc(user).stream().map(PostResponseDto::new).toList();
+    public List<PostResponseDto> getPosts() {
+        return postRepository.findAllByOrderByCreatedAtDesc().stream().map(PostResponseDto::new).toList();
     }
 
     // 선택한 게시글 조회
     @Transactional
-    public PostResponseDto getPostById(Long id, User user) {
-        PostResponseDto responseDto = new PostResponseDto(checkUser(id, user));
+    public PostResponseDto getPostById(Long id) {
+        PostResponseDto responseDto = new PostResponseDto(findPost(id));
         return responseDto;
     }
 

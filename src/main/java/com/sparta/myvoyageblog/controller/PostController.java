@@ -24,14 +24,14 @@ public class PostController {
 
     // 전체 게시글 목록 조회
     @GetMapping("/posts")
-    public List<PostResponseDto> getPosts(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.getPosts(userDetails.getUser());
+    public List<PostResponseDto> getPosts() {
+        return postService.getPosts();
     }
 
     // 선택한 게시글 조회
     @GetMapping("/posts/{id}")
-    public PostResponseDto getPostById(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postService.getPostById(id, userDetails.getUser());
+    public PostResponseDto getPostById(@PathVariable Long id) {
+        return postService.getPostById(id);
     }
 
     // 선택한 게시글 수정
