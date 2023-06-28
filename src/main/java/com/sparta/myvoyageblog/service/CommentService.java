@@ -7,6 +7,7 @@ import com.sparta.myvoyageblog.entity.Post;
 import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.repository.CommentRepository;
 import com.sparta.myvoyageblog.repository.PostRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
@@ -32,15 +33,24 @@ public class CommentService {
 
     // 선택한 댓글 수정
     @Transactional
-    public CommentResponseDto updateComment(Long id, CommentRequestDto requestDto, User user) {
-        checkUser(id, user).update(requestDto);
-        CommentResponseDto commentResponseDto = new CommentResponseDto(findComment(id));
-        return commentResponseDto;
+    public CommentResponseDto updateComment(Long id, CommentRequestDto requestDto, User user, HttpServletResponse response) {
+	    if (!checkUser(id, user)) {
+		    response.setStatus(400);
+			return null;
+	    } else {
+		    findComment(id).update(requestDto);
+		    CommentResponseDto commentResponseDto = new CommentResponseDto(findComment(id));
+		    return commentResponseDto;
+	    }
     }
 
     // 선택한 댓글 삭제
-    public void deleteComment(Long id, @AuthenticationPrincipal User user) {
-        commentRepository.delete(checkUser(id, user));
+    public void deleteComment(Long id, @AuthenticationPrincipal User user, HttpServletResponse response) {
+        if (!checkUser(id, user)) {
+	        response.setStatus(400);
+		} else {
+			commentRepository.delete(findComment(id));
+        }
     }
 
 	// 선택한 게시글에 대한 댓글 조회
@@ -56,12 +66,12 @@ public class CommentService {
     }
 
     // 선택한 댓글의 사용자가 맞는지 혹은 관리자인지 확인하기
-    private Comment checkUser(Long selectId, User user) {
+    private boolean checkUser(Long selectId, User user) {
         Comment comment = findComment(selectId);
         if (comment.getUser().getUsername().equals(user.getUsername()) || user.getRole().getAuthority().equals("ROLE_ADMIN")) {
-            return comment;
+            return true;
         } else {
-            throw new IllegalArgumentException("해당 게시글에 관한 권한이 없습니다.");
+            return false;
         }
     }
 }

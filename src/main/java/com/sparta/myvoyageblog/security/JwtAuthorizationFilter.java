@@ -1,5 +1,7 @@
 package com.sparta.myvoyageblog.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.myvoyageblog.dto.UserResponseDto;
 import com.sparta.myvoyageblog.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -37,6 +39,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             if (!jwtUtil.validateToken(tokenValue)) {
                 log.error("Token Error");
+                res.setStatus(400);
+                statusResponse(res, "토큰이 유효하지 않습니다.");
                 return;
             }
 
@@ -46,6 +50,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 setAuthentication(info.getSubject());
             } catch (Exception e) {
                 log.error(e.getMessage());
+                res.setStatus(400);
+                statusResponse(res, "토큰이 유효하지 않습니다.");
                 return;
             }
         }
@@ -67,4 +73,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+
+    // Response Body에 상태 담아 반환하기
+    public void statusResponse (HttpServletResponse response, String message) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("utf-8");
+        UserResponseDto responseDto = new UserResponseDto(message, response.getStatus());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String result = objectMapper.writeValueAsString(responseDto);
+        response.getWriter().write(result);
+    }
+
 }

@@ -52,24 +52,23 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String token = jwtUtil.createToken(username, role);
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
-        statusResponse(response, "성공");
+        statusResponse(response, "로그인에 성공하였습니다.");
     }
 
     // 로그인 실패 시
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
-        response.setStatus(401);
-        statusResponse(response, "실패");
+        response.setStatus(400);
+        statusResponse(response, "회원을 찾을 수 없습니다.");
     }
 
     // Response Body에 상태 담아 반환하기
-    private void statusResponse (HttpServletResponse response, String message) throws IOException {
+    public void statusResponse (HttpServletResponse response, String message) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
-        UserResponseDto responseDto = new UserResponseDto("로그인", message, response.getStatus());
+        UserResponseDto responseDto = new UserResponseDto(message, response.getStatus());
         ObjectMapper objectMapper = new ObjectMapper();
         String result = objectMapper.writeValueAsString(responseDto);
         response.getWriter().write(result);
     }
-
 }

@@ -5,6 +5,8 @@ import com.sparta.myvoyageblog.dto.PostResponseDto;
 import com.sparta.myvoyageblog.entity.Post;
 import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.repository.PostRepository;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,14 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final CommentService commentService;
-
-    public PostService(PostRepository postRepository, CommentService commentService) {
-        this.postRepository = postRepository;
-        this.commentService = commentService;
-    }
 
     // 게시글 작성
     public PostResponseDto createPost(PostRequestDto requestDto, User user) {
@@ -52,15 +50,24 @@ public class PostService {
 
     // 선택한 게시글 수정
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
-        checkUser(id, user).update(requestDto);
-        PostResponseDto postResponseDto = new PostResponseDto(findPost(id));
-        return postResponseDto;
+    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user, HttpServletResponse response) {
+        if (!checkUser(id, user)) {
+            response.setStatus(400);
+            return null;
+        } else {
+            findPost(id).update(requestDto);
+            PostResponseDto postResponseDto = new PostResponseDto(findPost(id));
+            return postResponseDto;
+        }
     }
 
     // 선택한 게시글 삭제
-    public void deletePost(Long id, @AuthenticationPrincipal User user) {
-        postRepository.delete(checkUser(id, user));
+    public void deletePost(Long id, @AuthenticationPrincipal User user, HttpServletResponse response) {
+        if (!checkUser(id, user)) {
+            response.setStatus(400);
+        } else {
+            postRepository.delete(findPost(id));
+        }
     }
 
     // id에 따른 게시글 찾기
@@ -71,12 +78,12 @@ public class PostService {
     }
 
     // 선택한 게시글의 사용자가 맞는지 혹은 관리자인지 확인하기
-    private Post checkUser(Long selectId, User user) {
+    private boolean checkUser(Long selectId, User user) {
         Post post = findPost(selectId);
         if (post.getUser().getUsername().equals(user.getUsername()) || user.getRole().getAuthority().equals("ROLE_ADMIN")) {
-            return post;
+            return true;
         } else {
-            throw new IllegalArgumentException("해당 게시글에 관한 권한이 없습니다.");
+            return false;
         }
     }
 }
