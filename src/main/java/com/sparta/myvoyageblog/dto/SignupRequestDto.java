@@ -17,4 +17,6 @@ public class SignupRequestDto {
     @Pattern(regexp = "^[A-Za-z0-9~`!@#$%\\\\^&*()-]*$")
     private String password;
 
+    private boolean admin = false;
+    private String adminToken = "";
 }
