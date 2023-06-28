@@ -13,7 +13,8 @@
 <br/>
 
 ## 2. ERD
-<img width="349" alt="나만의 항해 블로그 백엔드 서버 만들기 ERD 230627" src="https://github.com/HaenaCho01/myVoyageBlogVer2/assets/131599243/82a77a63-41ac-41bc-9fda-7a929c781648">
+<img width="351" alt="나만의 항해 블로그 백엔드 서버 만들기 ERD 230627" src="https://github.com/HaenaCho01/myVoyageBlogVer2/assets/131599243/68858921-c1af-4a24-84f8-1a8805044ffd">
+
 
 
 
