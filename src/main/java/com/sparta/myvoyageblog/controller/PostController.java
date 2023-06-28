@@ -24,7 +24,7 @@ public class PostController {
 
     // 전체 게시글 목록 조회
     @GetMapping("/posts")
-    public List<PostResponseDto> getPosts() {
+    public List<List<Object>> getPosts() {
         return postService.getPosts();
     }
 

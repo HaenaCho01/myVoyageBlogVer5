@@ -30,12 +30,18 @@ public class PostService {
         return postResponseDto;
     }
 
-    // 전체 게시글 목록 조회
-    public List<PostResponseDto> getPosts() {
-        return postRepository.findAllByOrderByCreatedAtDesc().stream().map(PostResponseDto::new).toList();
+    // 전체 게시글 및 댓글 목록 조회
+    public List<List<Object>> getPosts() {
+        Post lastPost = postRepository.findTop1ByOrderByCreatedAtDesc();
+        Post firstPost = postRepository.findTop1ByOrderByCreatedAtAsc();
+        List<List<Object>> postAndCommentsList = new ArrayList<>();
+        for (Long i = lastPost.getId(); i >= firstPost.getId(); i--) {
+            postAndCommentsList.add(getPostById(i));
+        }
+        return postAndCommentsList;
     }
 
-    // 선택한 게시글 조회
+    // 선택한 게시글 및 댓글 조회
     @Transactional
     public List<Object> getPostById(Long id) {
         List<Object> postAndComments = new ArrayList<>();
