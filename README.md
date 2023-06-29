@@ -16,7 +16,8 @@
 <br/>
 
 ## 2. ERD
-![나만의 항해 블로그 백엔드 서버 만들기 erd ver 3 230629 drawio](https://github.com/HaenaCho01/myVoyageBlogVer3/assets/131599243/15817550-6aa7-42b0-be0f-18d6261584ab)
+![나만의 항해 블로그 백엔드 서버 만들기 erd ver 3 230629 drawio](https://github.com/HaenaCho01/myVoyageBlogVer3/assets/131599243/2929e330-b25c-431e-9869-ae884730e754)
+
 
 
 
