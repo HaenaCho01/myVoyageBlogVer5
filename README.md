@@ -3,6 +3,11 @@
 <br/>
 <br/>
 
+## ***해결하지 못한 문제*** => Issue 작성
+
+<br/>
+<br/>
+
 ## 1. Use Case
 ![나만의 항해 블로그 백엔드 서버 만들기 유스케이스 다이어그램 ver 3 230629 drawio](https://github.com/HaenaCho01/myVoyageBlogVer3/assets/131599243/20d2f287-d3ce-4800-9746-e1384cf5cb41)
 
