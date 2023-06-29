@@ -30,11 +30,12 @@ public class PostService {
 
     // 전체 게시글 및 댓글 목록 조회
     public List<List<Object>> getPosts() {
-        Post lastPost = postRepository.findTop1ByOrderByCreatedAtDesc();
-        Post firstPost = postRepository.findTop1ByOrderByCreatedAtAsc();
+        List<Post> postList = postRepository.findAllByOrderByCreatedAtDesc();
+
         List<List<Object>> postAndCommentsList = new ArrayList<>();
-        for (Long i = lastPost.getId(); i >= firstPost.getId(); i--) {
-            postAndCommentsList.add(getPostById(i));
+
+        for (int i = 0; i < postList.size(); i++) {
+            postAndCommentsList.add(getPostById(postList.get(i).getId()));
         }
         return postAndCommentsList;
     }
