@@ -28,6 +28,9 @@ public class Comment extends Timestamped {
     @JoinColumn(name = "user_username", nullable = false)
     private User user;
 
+    @Column(name = "likes")
+    private int likes;
+
     public Comment(Post post, CommentRequestDto requestDto, User user) {
         this.post = post;
         this.comment = requestDto.getComment();
@@ -36,5 +39,9 @@ public class Comment extends Timestamped {
 
     public void update(CommentRequestDto requestDto) {
         this.comment = requestDto.getComment();
+    }
+
+    public void updateLikes() {
+        this.likes++;
     }
 }

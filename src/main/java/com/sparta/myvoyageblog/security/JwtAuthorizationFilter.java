@@ -1,7 +1,7 @@
 package com.sparta.myvoyageblog.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.myvoyageblog.dto.UserResponseDto;
+import com.sparta.myvoyageblog.dto.ResponseMessageDto;
 import com.sparta.myvoyageblog.jwt.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -78,7 +78,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     public void statusResponse (HttpServletResponse response, String message) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
-        UserResponseDto responseDto = new UserResponseDto(message, response.getStatus());
+        ResponseMessageDto responseDto = new ResponseMessageDto(message, response.getStatus());
         ObjectMapper objectMapper = new ObjectMapper();
         String result = objectMapper.writeValueAsString(responseDto);
         response.getWriter().write(result);

@@ -2,7 +2,7 @@ package com.sparta.myvoyageblog.controller;
 
 import com.sparta.myvoyageblog.dto.CommentRequestDto;
 import com.sparta.myvoyageblog.dto.CommentResponseDto;
-import com.sparta.myvoyageblog.response.ResponseUtil;
+import com.sparta.myvoyageblog.util.ResponseMessageUtil;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import com.sparta.myvoyageblog.service.CommentService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +17,7 @@ import java.io.IOException;
 @RequestMapping("/api")
 public class CommentController {
     private final CommentService commentService;
-    private final ResponseUtil responseUtil;
+    private final ResponseMessageUtil responseMessageUtil;
 
     // 댓글 작성
     @PostMapping("/comments")
@@ -31,7 +31,7 @@ public class CommentController {
         CommentResponseDto responseDto = commentService.updateComment(id, requestDto, userDetails.getUser(), response);
 
         if (response.getStatus() == 400) {
-            responseUtil.statusResponse(response, "작성자만 수정할 수 있습니다.");
+            responseMessageUtil.statusResponse(response, "작성자만 수정할 수 있습니다.");
             return null;
         } else {
             return responseDto;
@@ -44,9 +44,17 @@ public class CommentController {
         commentService.deleteComment(id, userDetails.getUser(), response);
 
         if (response.getStatus() == 400) {
-            responseUtil.statusResponse(response, "작성자만 삭제할 수 있습니다.");
+            responseMessageUtil.statusResponse(response, "작성자만 삭제할 수 있습니다.");
         } else {
-            responseUtil.statusResponse(response, "해당 댓글의 삭제를 완료하였습니다.");
+            responseMessageUtil.statusResponse(response, "해당 댓글의 삭제를 완료하였습니다.");
         }
+    }
+
+    // 선택한 댓글 좋아요
+    @PutMapping("/comments/{id}/likes")
+    public CommentResponseDto commentLike(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CommentResponseDto responseDto = commentService.commentLike(id, userDetails.getUser());
+
+        return responseDto;
     }
 }

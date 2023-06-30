@@ -74,4 +74,13 @@ public class CommentService {
             return false;
         }
     }
+
+	// 선택한 댓글 좋아요 추가
+	public CommentResponseDto commentLike(Long id, User user) {
+		Comment comment = findComment(id);
+		comment.updateLikes();
+		Comment savedComment = commentRepository.save(comment);
+		CommentResponseDto commentResponseDto = new CommentResponseDto(savedComment);
+		return commentResponseDto;
+	}
 }

@@ -2,7 +2,7 @@ package com.sparta.myvoyageblog.controller;
 
 import com.sparta.myvoyageblog.dto.SignupRequestDto;
 import com.sparta.myvoyageblog.service.UserService;
-import com.sparta.myvoyageblog.response.ResponseUtil;
+import com.sparta.myvoyageblog.util.ResponseMessageUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final ResponseUtil responseUtil;
+    private final ResponseMessageUtil responseMessageUtil;
 
     // 회원가입
     @PostMapping("/user/signup")
@@ -36,9 +36,9 @@ public class UserController {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
             }
             response.setStatus(400);
-            responseUtil.statusResponse(response, "username은 4~10자이며 알파벳 소문자와 숫자로, password는 8~15자이며 알파벳 대소문자와 숫자, 특수문자로 구성하여 다시 시도해주세요.");
+            responseMessageUtil.statusResponse(response, "username은 4~10자이며 알파벳 소문자와 숫자로, password는 8~15자이며 알파벳 대소문자와 숫자, 특수문자로 구성하여 다시 시도해주세요.");
         } else {
-            responseUtil.statusResponse(response, userService.signup(requestDto, response));
+            responseMessageUtil.statusResponse(response, userService.signup(requestDto, response));
         }
     }
 

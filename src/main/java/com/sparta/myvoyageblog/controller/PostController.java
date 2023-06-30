@@ -2,7 +2,7 @@ package com.sparta.myvoyageblog.controller;
 
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.dto.PostResponseDto;
-import com.sparta.myvoyageblog.response.ResponseUtil;
+import com.sparta.myvoyageblog.util.ResponseMessageUtil;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import com.sparta.myvoyageblog.service.PostService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class PostController {
     private final PostService postService;
-    private final ResponseUtil responseUtil;
+    private final ResponseMessageUtil responseMessageUtil;
 
     // 게시글 작성
     @PostMapping("/posts")
@@ -44,7 +44,7 @@ public class PostController {
         PostResponseDto responseDto = postService.updatePost(id, requestDto, userDetails.getUser(), response);
 
         if (response.getStatus() == 400) {
-            responseUtil.statusResponse(response, "작성자만 수정할 수 있습니다.");
+            responseMessageUtil.statusResponse(response, "작성자만 수정할 수 있습니다.");
             return null;
         } else {
             return responseDto;
@@ -57,9 +57,9 @@ public class PostController {
         postService.deletePost(id, userDetails.getUser(), response);
 
         if (response.getStatus() == 400) {
-            responseUtil.statusResponse(response, "작성자만 삭제할 수 있습니다.");
+            responseMessageUtil.statusResponse(response, "작성자만 삭제할 수 있습니다.");
         } else {
-            responseUtil.statusResponse(response, "해당 댓글의 삭제를 완료하였습니다.");
+            responseMessageUtil.statusResponse(response, "해당 댓글의 삭제를 완료하였습니다.");
         }
     }
 }
