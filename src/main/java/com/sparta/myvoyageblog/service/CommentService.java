@@ -28,8 +28,8 @@ public class CommentService {
     }
 
 	// 댓글 작성
-    public CommentResponseDto createComment(CommentRequestDto requestDto, User user) {
-        Post post = postRepository.getById(requestDto.getPostId());
+    public CommentResponseDto createComment(Long postid, CommentRequestDto requestDto, User user) {
+		Post post = postRepository.getById(postid);
         Comment comment = new Comment(post, requestDto, user);
         Comment saveComment = commentRepository.save(comment);
         CommentResponseDto commentResponseDto = new CommentResponseDto(saveComment);
@@ -38,33 +38,41 @@ public class CommentService {
 
 	// 선택한 댓글 수정
     @Transactional
-    public CommentResponseDto updateComment(Long id, CommentRequestDto requestDto, User user, HttpServletResponse response) {
-	    if (!checkUser(id, user)) {
+    public CommentResponseDto updateComment(Long postid, Long commentid, CommentRequestDto requestDto, User user, HttpServletResponse response) {
+	    if (postid != findComment(commentid).getPost().getId()) {
+		    response.setStatus(404);
+		    return null;
+	    } else if (!checkUser(commentid, user)) {
 		    response.setStatus(400);
 			return null;
 	    } else {
-		    findComment(id).update(requestDto);
-		    CommentResponseDto commentResponseDto = new CommentResponseDto(findComment(id));
+			findComment(commentid).update(requestDto);
+		    CommentResponseDto commentResponseDto = new CommentResponseDto(findComment(commentid));
 		    return commentResponseDto;
 	    }
     }
 
 	// 선택한 댓글 삭제
-    public void deleteComment(Long id, @AuthenticationPrincipal User user, HttpServletResponse response) {
-        if (!checkUser(id, user)) {
+    public void deleteComment(Long postid, Long commentid, @AuthenticationPrincipal User user, HttpServletResponse response) {
+	    if (postid != findComment(commentid).getPost().getId()) {
+		    response.setStatus(404);
+	    } else if (!checkUser(commentid, user)) {
 	        response.setStatus(400);
 		} else {
-			commentRepository.delete(findComment(id));
-        }
+		    commentRepository.delete(findComment(commentid));
+	    }
     }
 
 	// 선택한 댓글 좋아요 기능 추가
-	public CommentResponseDto commentLike(Long id, User user, HttpServletResponse response) {
-		if (checkUser(id, user)) {
+	public CommentResponseDto commentLike(Long postid, Long commentid, User user, HttpServletResponse response) {
+		if (postid != findComment(commentid).getPost().getId()) {
+			response.setStatus(404);
+			return null;
+		} else if (checkUser(commentid, user)) {
 			response.setStatus(400);
 			return null;
 		} else {
-			Comment comment = findComment(id);
+			Comment comment = findComment(commentid);
 			comment.updateLikes();
 			Comment savedComment = commentRepository.save(comment);
 			CommentResponseDto commentResponseDto = new CommentResponseDto(savedComment);
@@ -73,11 +81,18 @@ public class CommentService {
 	}
 
 	// id에 따른 댓글 찾기
-    private Comment findComment(Long id) {
-        return commentRepository.findById(id).orElseThrow(() ->
+    private Comment findComment(Long commentid) {
+        return commentRepository.findById(commentid).orElseThrow(() ->
                 new IllegalArgumentException("선택한 게시글은 존재하지 않습니다.")
         );
     }
+
+	// id에 따른 게시글 찾기
+	private Post findPost(Long id) {
+		return postRepository.findById(id).orElseThrow(() ->
+				new IllegalArgumentException("선택한 게시글은 존재하지 않습니다.")
+		);
+	}
 
 	// 선택한 댓글의 사용자가 맞는지 혹은 관리자인지 확인하기
     private boolean checkUser(Long selectId, User user) {
