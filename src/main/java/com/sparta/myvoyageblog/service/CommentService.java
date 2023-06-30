@@ -53,19 +53,33 @@ public class CommentService {
         }
     }
 
+	// 선택한 댓글 좋아요 기능 추가
+	public CommentResponseDto commentLike(Long id, User user, HttpServletResponse response) {
+		if (checkUser(id, user)) {
+			response.setStatus(400);
+			return null;
+		} else {
+			Comment comment = findComment(id);
+			comment.updateLikes();
+			Comment savedComment = commentRepository.save(comment);
+			CommentResponseDto commentResponseDto = new CommentResponseDto(savedComment);
+			return commentResponseDto;
+		}
+	}
+
 	// 선택한 게시글에 대한 댓글 조회
 	public List<CommentResponseDto> getComments(Long postid) {
 		return commentRepository.findAllByPost_idOrderByCreatedAtDesc(postid).stream().map(CommentResponseDto::new).toList();
 	}
 
-    // id에 따른 댓글 찾기
+	// id에 따른 댓글 찾기
     private Comment findComment(Long id) {
         return commentRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("선택한 게시글은 존재하지 않습니다.")
         );
     }
 
-    // 선택한 댓글의 사용자가 맞는지 혹은 관리자인지 확인하기
+	// 선택한 댓글의 사용자가 맞는지 혹은 관리자인지 확인하기
     private boolean checkUser(Long selectId, User user) {
         Comment comment = findComment(selectId);
         if (comment.getUser().getUsername().equals(user.getUsername()) || user.getRole().getAuthority().equals("ROLE_ADMIN")) {
@@ -74,13 +88,4 @@ public class CommentService {
             return false;
         }
     }
-
-	// 선택한 댓글 좋아요 추가
-	public CommentResponseDto commentLike(Long id, User user) {
-		Comment comment = findComment(id);
-		comment.updateLikes();
-		Comment savedComment = commentRepository.save(comment);
-		CommentResponseDto commentResponseDto = new CommentResponseDto(savedComment);
-		return commentResponseDto;
-	}
 }

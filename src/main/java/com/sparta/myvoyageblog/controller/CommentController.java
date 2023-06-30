@@ -52,8 +52,8 @@ public class CommentController {
 
     // 선택한 댓글 좋아요
     @PutMapping("/comments/{id}/likes")
-    public CommentResponseDto commentLike(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        CommentResponseDto responseDto = commentService.commentLike(id, userDetails.getUser());
+    public CommentResponseDto commentLike(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
+        CommentResponseDto responseDto = commentService.commentLike(id, userDetails.getUser(), response);
 
         return responseDto;
     }
