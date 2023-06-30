@@ -45,7 +45,7 @@ public class PostService {
     public List<Object> getPostById(Long id) {
         List<Object> postAndComments = new ArrayList<>();
         postAndComments.add(new PostResponseDto(findPost(id)));
-        postAndComments.add(commentService.getComments(id));
+        postAndComments.add(commentService.getCommentsByPostId(id));
         return postAndComments;
     }
 

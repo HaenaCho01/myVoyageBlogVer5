@@ -11,22 +11,29 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/posts")
 public class CommentController {
     private final CommentService commentService;
     private final ResponseMessageUtil responseMessageUtil;
 
+    // 선택한 게시글에 대한 모든 댓글 조회
+    @GetMapping("/{postid}/comments")
+    public List<CommentResponseDto> getCommentsByPostId(@PathVariable Long postid) {
+        return commentService.getCommentsByPostId(postid);
+    }
+
     // 댓글 작성
-    @PostMapping("/comments")
+    @PostMapping("/{postid}/comments")
     public CommentResponseDto createComment(@RequestBody CommentRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return commentService.createComment(requestDto, userDetails.getUser());
     }
 
     // 선택한 댓글 수정
-    @PutMapping("/comments/{id}")
+    @PutMapping("/{postid}/comments/{commentid}")
     public CommentResponseDto updateComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
         CommentResponseDto responseDto = commentService.updateComment(id, requestDto, userDetails.getUser(), response);
 
@@ -39,7 +46,7 @@ public class CommentController {
     }
 
     // 선택한 댓글 삭제
-    @DeleteMapping("/comments/{id}")
+    @DeleteMapping("/{postid}/comments/{commentid}")
     public void deleteComment(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
         commentService.deleteComment(id, userDetails.getUser(), response);
 
@@ -51,7 +58,7 @@ public class CommentController {
     }
 
     // 선택한 댓글 좋아요
-    @PutMapping("/comments/{id}/likes")
+    @PutMapping("/{postid}/comments/{commentid}/likes")
     public CommentResponseDto commentLike(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
         CommentResponseDto responseDto = commentService.commentLike(id, userDetails.getUser(), response);
 

@@ -22,7 +22,12 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
-    // 댓글 작성
+    // 선택한 게시글에 대한 댓글 전체 조회
+    public List<CommentResponseDto> getCommentsByPostId(Long postid) {
+	    return commentRepository.findAllByPost_idOrderByCreatedAtDesc(postid).stream().map(CommentResponseDto::new).toList();
+    }
+
+	// 댓글 작성
     public CommentResponseDto createComment(CommentRequestDto requestDto, User user) {
         Post post = postRepository.getById(requestDto.getPostId());
         Comment comment = new Comment(post, requestDto, user);
@@ -31,7 +36,7 @@ public class CommentService {
         return commentResponseDto;
     }
 
-    // 선택한 댓글 수정
+	// 선택한 댓글 수정
     @Transactional
     public CommentResponseDto updateComment(Long id, CommentRequestDto requestDto, User user, HttpServletResponse response) {
 	    if (!checkUser(id, user)) {
@@ -44,7 +49,7 @@ public class CommentService {
 	    }
     }
 
-    // 선택한 댓글 삭제
+	// 선택한 댓글 삭제
     public void deleteComment(Long id, @AuthenticationPrincipal User user, HttpServletResponse response) {
         if (!checkUser(id, user)) {
 	        response.setStatus(400);
@@ -65,11 +70,6 @@ public class CommentService {
 			CommentResponseDto commentResponseDto = new CommentResponseDto(savedComment);
 			return commentResponseDto;
 		}
-	}
-
-	// 선택한 게시글에 대한 댓글 조회
-	public List<CommentResponseDto> getComments(Long postid) {
-		return commentRepository.findAllByPost_idOrderByCreatedAtDesc(postid).stream().map(CommentResponseDto::new).toList();
 	}
 
 	// id에 따른 댓글 찾기
