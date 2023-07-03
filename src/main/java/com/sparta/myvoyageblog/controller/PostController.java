@@ -2,7 +2,9 @@ package com.sparta.myvoyageblog.controller;
 
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.dto.PostResponseDto;
-import com.sparta.myvoyageblog.util.ResponseMessageUtil;
+import com.sparta.myvoyageblog.dto.ResponseMessageDto;
+import com.sparta.myvoyageblog.exception.ErrorCode;
+import com.sparta.myvoyageblog.exception.GlobalExceptionHandler;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import com.sparta.myvoyageblog.service.PostService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +20,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class PostController {
     private final PostService postService;
-    private final ResponseMessageUtil responseMessageUtil;
+    private final GlobalExceptionHandler globalExceptionHandler;
 
     // 게시글 작성
     @PostMapping("/posts")
@@ -40,12 +42,11 @@ public class PostController {
 
     // 선택한 게시글 수정
     @PutMapping("/posts/{id}")
-    public PostResponseDto updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
+    public Object updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
         PostResponseDto responseDto = postService.updatePost(id, requestDto, userDetails.getUser(), response);
 
         if (response.getStatus() == 400) {
-            responseMessageUtil.statusResponse(response, "작성자만 수정할 수 있습니다.");
-            return null;
+            return globalExceptionHandler.badRequestException(ErrorCode.USER_ONLY_ERROR);
         } else {
             return responseDto;
         }
@@ -53,13 +54,13 @@ public class PostController {
 
     // 선택한 게시글 삭제
     @DeleteMapping("/posts/{id}")
-    public void deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
+    public Object deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
         postService.deletePost(id, userDetails.getUser(), response);
 
         if (response.getStatus() == 400) {
-            responseMessageUtil.statusResponse(response, "작성자만 삭제할 수 있습니다.");
+            return globalExceptionHandler.badRequestException(ErrorCode.USER_ONLY_ERROR);
         } else {
-            responseMessageUtil.statusResponse(response, "해당 댓글의 삭제를 완료하였습니다.");
+            return new ResponseMessageDto( "해당 게시글의 삭제를 완료했습니다.", response.getStatus());
         }
     }
 }
