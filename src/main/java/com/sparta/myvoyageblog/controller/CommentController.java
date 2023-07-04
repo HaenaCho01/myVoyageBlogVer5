@@ -61,15 +61,47 @@ public class CommentController {
         }
     }
 
-    // 선택한 댓글 좋아요
-    @PutMapping("/{postid}/comments/{commentid}/likes")
-    public Object commentLike(@PathVariable Long postid, @PathVariable Long commentid, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) {
-        CommentResponseDto responseDto = commentService.commentLike(postid, commentid, userDetails.getUser(), response);
+    // 선택한 댓글 좋아요 추가
+    @PostMapping("/{postId}/comments/{commentId}/like")
+    public Object commentInsertLike(@PathVariable Long postId, @PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) {
+        CommentResponseDto responseDto = commentService.commentInsertLike(postId, commentId, userDetails.getUser(), response);
 
+        // 작성한 유저가 좋아요를 시도할 경우 오류 메시지 반환
         if (response.getStatus() == 400) {
             return globalExceptionHandler.badRequestException(ErrorCode.USER_NOT_ERROR);
+
+        // postId 받은 것과 comment DB에 저장된 postId가 다를 경우 오류 메시지 반환
         } else if (response.getStatus() == 404) {
             return globalExceptionHandler.badRequestException(ErrorCode.NOT_FOUND_ERROR);
+
+        // 사용자가 이미 좋아요를 누른 경우 오류 메시지 반환
+        } else if (response.getStatus() == 409) {
+            return globalExceptionHandler.badRequestException(ErrorCode.LIKE_PRESENT);
+
+        // 오류가 나지 않을 경우 해당 댓글 좋아요 추가
+        } else {
+            return responseDto;
+        }
+    }
+
+    // 선택한 댓글 좋아요 취소
+    @DeleteMapping("/{postId}/comments/{commentId}/like")
+    public Object commentDeleteLike(@PathVariable Long postId, @PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) {
+        CommentResponseDto responseDto = commentService.commentDeleteLike(postId, commentId, userDetails.getUser(), response);
+
+        // 작성한 유저가 좋아요를 시도할 경우 오류 메시지 반환
+        if (response.getStatus() == 400) {
+            return globalExceptionHandler.badRequestException(ErrorCode.USER_NOT_ERROR);
+
+        // postId 받은 것과 comment DB에 저장된 postId가 다를 경우 오류 메시지 반환
+        } else if (response.getStatus() == 404) {
+            return globalExceptionHandler.badRequestException(ErrorCode.NOT_FOUND_ERROR);
+
+        // 사용자가 좋아요를 누른 적이 없는 경우 오류 메시지 반환
+        } else if (response.getStatus() == 409) {
+            return globalExceptionHandler.badRequestException(ErrorCode.LIKE_EMPTY);
+
+        // 오류가 나지 않을 경우 해당 댓글 좋아요 취소
         } else {
             return responseDto;
         }
