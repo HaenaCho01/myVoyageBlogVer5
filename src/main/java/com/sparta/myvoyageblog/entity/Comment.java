@@ -25,7 +25,7 @@ public class Comment extends Timestamped {
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_username", nullable = false)
+    @JoinColumn(name = "username", nullable = false)
     private User user;
 
     @Column(name = "likes")
