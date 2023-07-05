@@ -28,6 +28,12 @@ public class Post extends Timestamped {
     @Column(name = "content", nullable = false, length = 500)
     private String content;
 
+    @Column(name = "likeCnt")
+    private long likeCnt;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
+    private List<PostLike> postLikeList;
+
     @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments;
 
@@ -40,5 +46,13 @@ public class Post extends Timestamped {
     public void update(PostRequestDto requestDto) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
+    }
+
+    public void insertLikeCnt() {
+        this.likeCnt++;
+    }
+
+    public void deleteLikeCnt() {
+        this.likeCnt--;
     }
 }
