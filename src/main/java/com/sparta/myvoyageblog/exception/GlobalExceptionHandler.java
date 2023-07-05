@@ -1,6 +1,6 @@
 package com.sparta.myvoyageblog.exception;
 
-import com.sparta.myvoyageblog.dto.ResponseMessageDto;
+import com.sparta.myvoyageblog.dto.ApiResponseDto;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -9,7 +9,7 @@ public class GlobalExceptionHandler {
 
 	// 에러 처리
 	@ExceptionHandler
-	public ResponseMessageDto badRequestException(ErrorCode errorCode) {
-		return new ResponseMessageDto(errorCode.getMessage(), errorCode.getStatus().value());
+	public ApiResponseDto badRequestException(ErrorCode errorCode) {
+		return new ApiResponseDto(errorCode.getMessage(), errorCode.getStatus().value());
 	}
 }

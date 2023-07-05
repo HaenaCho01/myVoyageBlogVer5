@@ -1,7 +1,7 @@
 package com.sparta.myvoyageblog.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sparta.myvoyageblog.dto.ResponseMessageDto;
+import com.sparta.myvoyageblog.dto.ApiResponseDto;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ public class ResponseMessageUtil {
 	public void statusResponse (HttpServletResponse response, String message) throws IOException {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("utf-8");
-		ResponseMessageDto responseDto = new ResponseMessageDto(message, response.getStatus());
+		ApiResponseDto responseDto = new ApiResponseDto(message, response.getStatus());
 		ObjectMapper objectMapper = new ObjectMapper();
 		String result = objectMapper.writeValueAsString(responseDto);
 		response.getWriter().write(result);

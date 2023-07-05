@@ -2,7 +2,7 @@ package com.sparta.myvoyageblog.controller;
 
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.dto.PostResponseDto;
-import com.sparta.myvoyageblog.dto.ResponseMessageDto;
+import com.sparta.myvoyageblog.dto.ApiResponseDto;
 import com.sparta.myvoyageblog.exception.ErrorCode;
 import com.sparta.myvoyageblog.exception.GlobalExceptionHandler;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
@@ -60,7 +60,7 @@ public class PostController {
         if (response.getStatus() == 400) {
             return globalExceptionHandler.badRequestException(ErrorCode.USER_ONLY_ERROR);
         } else {
-            return new ResponseMessageDto( "해당 게시글의 삭제를 완료했습니다.", response.getStatus());
+            return new ApiResponseDto( "해당 게시글의 삭제를 완료했습니다.", response.getStatus());
         }
     }
 }
