@@ -16,18 +16,18 @@ import java.util.List;
 public class Comment extends Timestamped {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "postId", nullable = false)
     private Post post;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "comment", nullable = false, length = 100)
-    private String comment;
+    @Column(name = "content", nullable = false, length = 100)
+    private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "username", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     @Column(name = "likeCnt")
@@ -38,12 +38,12 @@ public class Comment extends Timestamped {
 
     public Comment(Post post, CommentRequestDto requestDto, User user) {
         this.post = post;
-        this.comment = requestDto.getComment();
+        this.content = requestDto.getContent();
         this.user = user;
     }
 
     public void update(CommentRequestDto requestDto) {
-        this.comment = requestDto.getComment();
+        this.content = requestDto.getContent();
     }
 
     public void insertLikeCnt() {

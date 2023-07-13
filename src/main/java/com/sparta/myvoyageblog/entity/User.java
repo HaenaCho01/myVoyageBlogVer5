@@ -12,6 +12,10 @@ import lombok.Setter;
 @Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    private Long id;
+
     @Column(nullable = false, unique = true)
     private String username;
 

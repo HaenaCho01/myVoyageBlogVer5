@@ -22,7 +22,7 @@ public class Post extends Timestamped {
     private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_username", nullable = false)
+    @JoinColumn(name = "userId", nullable = false)
     private User user;
 
     @Column(name = "content", nullable = false, length = 500)
