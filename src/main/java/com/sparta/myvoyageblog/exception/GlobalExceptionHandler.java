@@ -1,15 +1,25 @@
 package com.sparta.myvoyageblog.exception;
 
 import com.sparta.myvoyageblog.dto.ApiResponseDto;
-import org.springframework.stereotype.Component;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@Component // @RestControllerAdvice 사용법을 아직 잘 모르겠음..
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
 	// 에러 처리
-	@ExceptionHandler
-	public ApiResponseDto badRequestException(ErrorCode errorCode) {
-		return new ApiResponseDto(errorCode.getMessage(), errorCode.getStatus().value());
+	@ExceptionHandler(EntityNotFoundException.class)
+	public ResponseEntity<ApiResponseDto> handleEntityNotFoundException(EntityNotFoundException ex) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+				.body(new ApiResponseDto(ex.getMessage(), HttpStatus.NOT_FOUND.value()));
+	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ApiResponseDto> handleIllegalArgumentException(IllegalArgumentException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+				.body(new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
 	}
 }

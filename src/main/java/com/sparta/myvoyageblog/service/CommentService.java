@@ -11,14 +11,11 @@ import com.sparta.myvoyageblog.repository.CommentRepository;
 import com.sparta.myvoyageblog.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +33,7 @@ public class CommentService {
 	// 댓글 작성
 	@Transactional
     public CommentResponseDto createComment(Long postid, CommentRequestDto requestDto, User user) {
-		Post post = postRepository.getById(postid);
+		Post post = findPost(postid);
         Comment comment = new Comment(post, requestDto, user);
         Comment saveComment = commentRepository.save(comment);
         CommentResponseDto commentResponseDto = new CommentResponseDto(saveComment);
@@ -52,7 +49,7 @@ public class CommentService {
 		}
 		// 다른 유저가 수정을 시도할 경우 예외 처리
 		if (!checkUser(commentId, user)) {
-			throw new AccessDeniedException("작성자만 수정할 수 있습니다.");
+			throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
 		}
 		// 오류가 나지 않을 경우 해당 댓글 수정
 		findComment(commentId).update(requestDto);
@@ -69,7 +66,7 @@ public class CommentService {
 		}
 		// 다른 유저가 삭제를 시도할 경우 예외 처리
 		if (!checkUser(commentId, user)) {
-			throw new AccessDeniedException("작성자만 삭제할 수 있습니다.");
+			throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
 		}
 		// 오류가 나지 않을 경우 해당 댓글 삭제
 		commentRepository.delete(findComment(commentId));
@@ -85,11 +82,11 @@ public class CommentService {
 		}
 		// 작성자가 좋아요를 시도할 경우 오류 코드 반환
 		if (checkUser(commentId, user)) {
-			throw new AccessDeniedException("작성자는 좋아요를 누를 수 없습니다.");
+			throw new IllegalArgumentException("작성자는 좋아요를 누를 수 없습니다.");
 		}
 		// 좋아요를 이미 누른 경우 오류 코드 반환
 		if (findCommentLike(user, comment) != null) {
-			throw new DataIntegrityViolationException("좋아요를 이미 누르셨습니다.");
+			throw new IllegalArgumentException("좋아요를 이미 누르셨습니다.");
 		}
 		// 오류가 나지 않을 경우 해당 댓글 좋아요 추가
 		commentLikeRepository.save(new CommentLike(user, comment));
@@ -107,11 +104,11 @@ public class CommentService {
 		}
 		// 작성자가 좋아요를 시도할 경우 오류 코드 반환
 		if (checkUser(commentId, user)) {
-			throw new AccessDeniedException("작성자는 좋아요를 누를 수 없습니다.");
+			throw new IllegalArgumentException("작성자는 좋아요를 누를 수 없습니다.");
 		}
 		// 좋아요를 누른 적이 없는 경우 오류 코드 반환
 		if (findCommentLike(user, comment) == null) {
-			throw new NoSuchElementException("좋아요를 누르시지 않았습니다.");
+			throw new IllegalArgumentException("좋아요를 누르시지 않았습니다.");
 		}
 		commentLikeRepository.delete(findCommentLike(user, comment));
 		comment.deleteLikeCnt();

@@ -9,15 +9,12 @@ import com.sparta.myvoyageblog.repository.PostLikeRepository;
 import com.sparta.myvoyageblog.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -60,7 +57,7 @@ public class PostService {
     public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
         // 다른 유저가 수정을 시도할 경우 예외 처리
         if (!checkUser(id, user)) {
-            throw new AccessDeniedException("작성자만 수정할 수 있습니다.");
+            throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
         }
         // 오류가 나지 않을 경우 해당 게시글 수정
         findPost(id).update(requestDto);
@@ -73,7 +70,7 @@ public class PostService {
     public void deletePost(Long id, @AuthenticationPrincipal User user) {
         // 다른 유저가 삭제를 시도할 경우 예외 처리
         if (!checkUser(id, user)) {
-            throw new AccessDeniedException("작성자만 삭제할 수 있습니다.");
+            throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
         }
         // 오류가 나지 않을 경우 해당 게시글 삭제
         postRepository.delete(findPost(id));
@@ -85,11 +82,11 @@ public class PostService {
         Post post = findPost(postId);
         // 작성자가 좋아요를 시도할 경우 오류 코드 반환
         if (checkUser(postId, user)) {
-            throw new AccessDeniedException("작성자는 좋아요를 누를 수 없습니다.");
+            throw new IllegalArgumentException("작성자는 좋아요를 누를 수 없습니다.");
         }
         // 좋아요를 이미 누른 경우 오류 코드 반환
         if (findPostLike(user, post) != null) {
-            throw new DataIntegrityViolationException("좋아요를 이미 누르셨습니다.");
+            throw new IllegalArgumentException("좋아요를 이미 누르셨습니다.");
         }
         // 오류가 나지 않을 경우 해당 댓글 좋아요 추가
         postLikeRepository.save(new PostLike(user, post));
@@ -103,11 +100,11 @@ public class PostService {
         Post post = findPost(postId);
         // 작성자가 좋아요를 시도할 경우 오류 코드 반환
         if (checkUser(postId, user)) {
-            throw new AccessDeniedException("작성자는 좋아요를 누를 수 없습니다.");
+            throw new IllegalArgumentException("작성자는 좋아요를 누를 수 없습니다.");
         }
         // 좋아요를 이미 누른 경우 오류 코드 반환
         if (findPostLike(user, post) == null) {
-            throw new NoSuchElementException("좋아요를 누르시지 않았습니다.");
+            throw new IllegalArgumentException("좋아요를 누르시지 않았습니다.");
         }
         // 오류가 나지 않을 경우 해당 댓글 좋아요 추가
         postLikeRepository.delete(findPostLike(user, post));
