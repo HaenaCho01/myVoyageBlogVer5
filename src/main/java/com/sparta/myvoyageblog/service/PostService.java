@@ -8,7 +8,6 @@ import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.repository.PostLikeRepository;
 import com.sparta.myvoyageblog.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
@@ -28,6 +27,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
 
     // 게시글 작성
+    @Transactional
     public PostResponseDto createPost(PostRequestDto requestDto, User user) {
         Post post = new Post(requestDto, user);
         Post savePost = postRepository.save(post);
@@ -48,7 +48,6 @@ public class PostService {
     }
 
     // 선택한 게시글 및 댓글 조회
-    @Transactional
     public List<Object> getPostById(Long id) {
         List<Object> postAndComments = new ArrayList<>();
         postAndComments.add(new PostResponseDto(findPost(id)));
@@ -58,29 +57,31 @@ public class PostService {
 
     // 선택한 게시글 수정
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user, HttpServletResponse response) {
+    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
+        // 다른 유저가 수정을 시도할 경우 예외 처리
         if (!checkUser(id, user)) {
-            response.setStatus(400);
-            return null;
-        } else {
-            findPost(id).update(requestDto);
-            PostResponseDto postResponseDto = new PostResponseDto(findPost(id));
-            return postResponseDto;
+            throw new AccessDeniedException("작성자만 수정할 수 있습니다.");
         }
+        // 오류가 나지 않을 경우 해당 게시글 수정
+        findPost(id).update(requestDto);
+        PostResponseDto postResponseDto = new PostResponseDto(findPost(id));
+        return postResponseDto;
     }
 
     // 선택한 게시글 삭제
-    public void deletePost(Long id, @AuthenticationPrincipal User user, HttpServletResponse response) {
+    @Transactional
+    public void deletePost(Long id, @AuthenticationPrincipal User user) {
+        // 다른 유저가 삭제를 시도할 경우 예외 처리
         if (!checkUser(id, user)) {
-            response.setStatus(400);
-        } else {
-            postRepository.delete(findPost(id));
+            throw new AccessDeniedException("작성자만 삭제할 수 있습니다.");
         }
+        // 오류가 나지 않을 경우 해당 게시글 삭제
+        postRepository.delete(findPost(id));
     }
 
-    @Transactional
     // 선택한 댓글 좋아요 기능 추가
-    public PostResponseDto postInsertLike(Long postId, User user) {
+    @Transactional
+    public void postInsertLike(Long postId, User user) {
         Post post = findPost(postId);
         // 작성자가 좋아요를 시도할 경우 오류 코드 반환
         if (checkUser(postId, user)) {
@@ -93,12 +94,12 @@ public class PostService {
         // 오류가 나지 않을 경우 해당 댓글 좋아요 추가
         postLikeRepository.save(new PostLike(user, post));
         post.insertLikeCnt();
-        PostResponseDto postResponseDto = new PostResponseDto(postRepository.save(post));
-        return postResponseDto;
+        postRepository.save(post);
     }
 
     // 선택한 댓글 좋아요 취소
-    public PostResponseDto postDeleteLike(Long postId, User user) {
+    @Transactional
+    public void postDeleteLike(Long postId, User user) {
         Post post = findPost(postId);
         // 작성자가 좋아요를 시도할 경우 오류 코드 반환
         if (checkUser(postId, user)) {
@@ -111,8 +112,7 @@ public class PostService {
         // 오류가 나지 않을 경우 해당 댓글 좋아요 추가
         postLikeRepository.delete(findPostLike(user, post));
         post.deleteLikeCnt();
-        PostResponseDto postResponseDto = new PostResponseDto(postRepository.save(post));
-        return postResponseDto;
+        postRepository.save(post);
     }
 
     // id에 따른 게시글 찾기

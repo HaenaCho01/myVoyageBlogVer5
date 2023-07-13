@@ -1,35 +1,27 @@
 package com.sparta.myvoyageblog.controller;
 
-import com.google.protobuf.Api;
+import com.sparta.myvoyageblog.dto.ApiResponseDto;
 import com.sparta.myvoyageblog.dto.CommentRequestDto;
 import com.sparta.myvoyageblog.dto.CommentResponseDto;
-import com.sparta.myvoyageblog.dto.ApiResponseDto;
-import com.sparta.myvoyageblog.exception.ErrorCode;
-import com.sparta.myvoyageblog.exception.GlobalExceptionHandler;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import com.sparta.myvoyageblog.service.CommentService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.RejectedExecutionException;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/posts")
 public class CommentController {
     private final CommentService commentService;
-    private final GlobalExceptionHandler globalExceptionHandler;
 
     // 선택한 게시글에 대한 모든 댓글 조회
     @GetMapping("/{postId}/comments")
@@ -91,8 +83,8 @@ public class CommentController {
     public ResponseEntity<ApiResponseDto> commentInsertLike(@PathVariable Long postId, @PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 오류가 나지 않을 경우 해당 댓글 좋아요 추가
         try {
-            CommentResponseDto responseDto = commentService.commentInsertLike(postId, commentId, userDetails.getUser());
-            return ResponseEntity.ok().body(responseDto);
+            commentService.commentInsertLike(postId, commentId, userDetails.getUser());
+            return ResponseEntity.ok().body(new ApiResponseDto("해당 댓글에 좋아요가 추가되었습니다.", HttpStatus.OK.value()));
         }
         // postId 받은 것과 comment DB에 저장된 postId가 다를 경우, 댓글이 존재하지 않을 경우 오류 메시지 반환
         catch (EntityNotFoundException notFoundException) {
@@ -116,8 +108,8 @@ public class CommentController {
     public ResponseEntity<ApiResponseDto> commentDeleteLike(@PathVariable Long postId, @PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 오류가 나지 않을 경우 해당 댓글 좋아요 취소
         try {
-            CommentResponseDto responseDto = commentService.commentDeleteLike(postId, commentId, userDetails.getUser());
-            return ResponseEntity.ok().body(responseDto);
+            commentService.commentDeleteLike(postId, commentId, userDetails.getUser());
+            return ResponseEntity.ok().body(new ApiResponseDto("해당 댓글에 좋아요가 취소되었습니다.", HttpStatus.OK.value()));
         }
         // postId 받은 것과 comment DB에 저장된 postId가 다를 경우, 댓글이 존재하지 않을 경우 오류 메시지 반환
         catch (EntityNotFoundException notFoundException) {

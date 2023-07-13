@@ -3,12 +3,9 @@ package com.sparta.myvoyageblog.controller;
 import com.sparta.myvoyageblog.dto.ApiResponseDto;
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.dto.PostResponseDto;
-import com.sparta.myvoyageblog.exception.ErrorCode;
-import com.sparta.myvoyageblog.exception.GlobalExceptionHandler;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import com.sparta.myvoyageblog.service.PostService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -17,7 +14,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -26,7 +22,6 @@ import java.util.NoSuchElementException;
 @RequestMapping("/api")
 public class PostController {
     private final PostService postService;
-    private final GlobalExceptionHandler globalExceptionHandler;
 
     // 게시글 작성
     @PostMapping("/posts")
@@ -48,35 +43,51 @@ public class PostController {
 
     // 선택한 게시글 수정
     @PutMapping("/posts/{id}")
-    public Object updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
-        PostResponseDto responseDto = postService.updatePost(id, requestDto, userDetails.getUser(), response);
-
-        if (response.getStatus() == 400) {
-            return globalExceptionHandler.badRequestException(ErrorCode.USER_ONLY_ERROR);
-        } else {
-            return responseDto;
+    public ResponseEntity<ApiResponseDto> updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        // 오류가 나지 않을 경우 해당 게시글 수정
+        try {
+            PostResponseDto result = postService.updatePost(id, requestDto, userDetails.getUser());
+            return ResponseEntity.ok().body(result);
+        }
+        // 게시글이 존재하지 않을 경우 오류 메시지 반환
+        catch (EntityNotFoundException notFoundException) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponseDto(notFoundException.getMessage(), HttpStatus.NOT_FOUND.value()));
+        }
+        // 다른 유저가 수정을 시도할 경우 오류 메시지 반환
+        catch (AccessDeniedException accessDeniedException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseDto(accessDeniedException.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
     }
 
     // 선택한 게시글 삭제
     @DeleteMapping("/posts/{id}")
-    public Object deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) throws IOException {
-        postService.deletePost(id, userDetails.getUser(), response);
-
-        if (response.getStatus() == 400) {
-            return globalExceptionHandler.badRequestException(ErrorCode.USER_ONLY_ERROR);
-        } else {
-            return new ApiResponseDto( "해당 게시글의 삭제를 완료했습니다.", response.getStatus());
+    public ResponseEntity<ApiResponseDto> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        // 오류가 나지 않을 경우 해당 댓글 삭제
+        try {
+            postService.deletePost(id, userDetails.getUser());
+            return ResponseEntity.ok().body(new ApiResponseDto("해당 게시글의 삭제를 완료했습니다.", HttpStatus.OK.value()));
+        }
+        // 게시글이 존재하지 않을 경우 오류 메시지 반환
+        catch (EntityNotFoundException notFoundException) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponseDto(notFoundException.getMessage(), HttpStatus.NOT_FOUND.value()));
+        }
+        // 다른 유저가 삭제를 시도할 경우 오류 메시지 반환
+        catch (AccessDeniedException accessDeniedException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseDto(accessDeniedException.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
     }
 
-    // 선택한 댓글 좋아요 추가
+    // 선택한 게시글 좋아요 추가
     @PostMapping("/posts/{postId}/like")
     public ResponseEntity<ApiResponseDto> postInsertLike(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        // 오류가 나지 않을 경우 해당 댓글 좋아요 추가
+        // 오류가 나지 않을 경우 해당 게시글 좋아요 추가
         try {
-            PostResponseDto responseDto = postService.postInsertLike(postId, userDetails.getUser());
-            return ResponseEntity.ok().body(responseDto);
+            postService.postInsertLike(postId, userDetails.getUser());
+            return ResponseEntity.ok().body(new ApiResponseDto("해당 게시글에 좋아요가 추가되었습니다.", HttpStatus.OK.value()));
         }
         // 게시글이 존재하지 않을 경우 오류 메시지 반환
         catch (EntityNotFoundException notFoundException) {
@@ -95,13 +106,13 @@ public class PostController {
         }
     }
 
-    // 선택한 댓글 좋아요 취소
+    // 선택한 게시글 좋아요 취소
     @DeleteMapping("/posts/{postId}/like")
     public ResponseEntity<ApiResponseDto> postDeleteLike(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         // 오류가 나지 않을 경우 해당 댓글 좋아요 취소
         try {
-            PostResponseDto responseDto = postService.postDeleteLike(postId, userDetails.getUser());
-            return ResponseEntity.ok().body(responseDto);
+            postService.postDeleteLike(postId, userDetails.getUser());
+            return ResponseEntity.ok().body(new ApiResponseDto("해당 게시글에 좋아요가 취소되었습니다.", HttpStatus.OK.value()));
         }
         // 게시글이 존재하지 않을 경우 오류 메시지 반환
         catch (EntityNotFoundException notFoundException) {

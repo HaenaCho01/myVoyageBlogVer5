@@ -10,7 +10,6 @@ import com.sparta.myvoyageblog.repository.CommentLikeRepository;
 import com.sparta.myvoyageblog.repository.CommentRepository;
 import com.sparta.myvoyageblog.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,6 +34,7 @@ public class CommentService {
     }
 
 	// 댓글 작성
+	@Transactional
     public CommentResponseDto createComment(Long postid, CommentRequestDto requestDto, User user) {
 		Post post = postRepository.getById(postid);
         Comment comment = new Comment(post, requestDto, user);
@@ -61,6 +61,7 @@ public class CommentService {
     }
 
 	// 선택한 댓글 삭제
+	@Transactional
 	public void deleteComment(Long postId, Long commentId, @AuthenticationPrincipal User user) {
 		// postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
 		if (postId != findComment(commentId).getPost().getId()) {
@@ -74,9 +75,9 @@ public class CommentService {
 		commentRepository.delete(findComment(commentId));
 	}
 
-	@Transactional
 	// 선택한 댓글 좋아요 기능 추가
-	public CommentResponseDto commentInsertLike(Long postId, Long commentId, User user) {
+	@Transactional
+	public void commentInsertLike(Long postId, Long commentId, User user) {
 		Comment comment = findComment(commentId);
 		// postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
 		if (postId != comment.getPost().getId()) {
@@ -93,12 +94,12 @@ public class CommentService {
 		// 오류가 나지 않을 경우 해당 댓글 좋아요 추가
 		commentLikeRepository.save(new CommentLike(user, comment));
 		comment.insertLikeCnt();
-		CommentResponseDto commentResponseDto = new CommentResponseDto(commentRepository.save(comment));
-		return commentResponseDto;
+		commentRepository.save(comment);
 	}
 
 	// 선택한 댓글 좋아요 취소
-	public CommentResponseDto commentDeleteLike(Long postId, Long commentId, User user) {
+	@Transactional
+	public void commentDeleteLike(Long postId, Long commentId, User user) {
 		Comment comment = findComment(commentId);
 		// postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
 		if (postId != comment.getPost().getId()) {
@@ -114,8 +115,7 @@ public class CommentService {
 		}
 		commentLikeRepository.delete(findCommentLike(user, comment));
 		comment.deleteLikeCnt();
-		CommentResponseDto commentResponseDto = new CommentResponseDto(commentRepository.save(comment));
-		return commentResponseDto;
+		commentRepository.save(comment);
 	}
 
 	// id에 따른 댓글 찾기
