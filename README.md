@@ -1,27 +1,25 @@
-# 스프링 부트로 회원가입, 로그인, 댓글 작성/조회/수정/삭제 기능이 추가된 나만의 항해 블로그 백엔드 서버 만들기 - 리팩토링
+# Spring Security를 적용한 나만의 항해 블로그 백엔드 서버 만들기
 
 <br/>
 <br/>
 
-## ***해결하지 못한 문제*** => Issue 작성
-
-<br/>
-<br/>
 
 ## 1. Use Case
-![나만의 항해 블로그 백엔드 서버 만들기 유스케이스 다이어그램 ver 3 230629 drawio](https://github.com/HaenaCho01/myVoyageBlogVer3/assets/131599243/20d2f287-d3ce-4800-9746-e1384cf5cb41)
+![나만의 항해 블로그 백엔드 서버 만들기 유스케이스 다이어그램 ver4 230714 drawio](https://github.com/HaenaCho01/myVoyageBlogVer4/assets/131599243/5119fbf1-5c5b-4a5c-b0fe-b99f233001d0)
+
 
 <br/>
 <br/>
 
 ## 2. ERD
-![나만의 항해 블로그 백엔드 서버 만들기 erd ver 3 230629 drawio](https://github.com/HaenaCho01/myVoyageBlogVer3/assets/131599243/2929e330-b25c-431e-9869-ae884730e754)
+![나만의 항해 블로그 백엔드 서버 만들기 erd ver 4 230714 drawio](https://github.com/HaenaCho01/myVoyageBlogVer4/assets/131599243/966dd388-1957-4b0a-949d-c65e50ffa7eb)
+
 
 <br/>
 <br/>
 
 ## 3. API 명세서
-https://documenter.getpostman.com/view/27924273/2s93z9ci2b
+https://documenter.getpostman.com/view/27924273/2s946eBE3m
 
 <br/>
 <br/>
