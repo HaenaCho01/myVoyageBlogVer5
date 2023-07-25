@@ -34,7 +34,7 @@ public class UserController {
             for (FieldError fieldError : bindingResult.getFieldErrors()) {
                 log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
             }
-            throw new IllegalArgumentException("username은 4~10자이며 알파벳 소문자와 숫자로, password는 8~15자이며 알파벳 대소문자와 숫자, 특수문자로 구성하여 다시 시도해주세요.");
+            throw new IllegalArgumentException("username은 3~10자이며 알파벳 대소문자와 숫자로, password는 4~15자이며 알파벳 대소문자와 숫자, 특수문자로 구성하여 다시 시도해주세요.");
         } else {
            userService.signup(requestDto);
             return ResponseEntity.ok().body(new ApiResponseDto("회원가입이 완료되었습니다.", HttpStatus.OK.value()));
