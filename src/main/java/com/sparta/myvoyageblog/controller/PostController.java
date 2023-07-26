@@ -32,22 +32,22 @@ public class PostController {
     }
 
     // 선택한 게시글 조회
-    @GetMapping("/posts/{id}")
-    public List<Object> getPostById(@PathVariable Long id) {
-        return postServiceImpl.getPostById(id);
+    @GetMapping("/posts/{postId}")
+    public List<Object> getPostById(@PathVariable Long postId) {
+        return postServiceImpl.getPostById(postId);
     }
 
     // 선택한 게시글 수정
-    @PutMapping("/posts/{id}")
-    public ResponseEntity<ApiResponseDto> updatePost(@PathVariable Long id, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        PostResponseDto result = postServiceImpl.updatePost(id, requestDto, userDetails.getUser());
+    @PutMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponseDto> updatePost(@PathVariable Long postId, @RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        PostResponseDto result = postServiceImpl.updatePost(postId, requestDto, userDetails.getUser());
         return ResponseEntity.ok().body(result);
     }
 
     // 선택한 게시글 삭제
-    @DeleteMapping("/posts/{id}")
-    public ResponseEntity<ApiResponseDto> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        postServiceImpl.deletePost(id, userDetails.getUser());
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<ApiResponseDto> deletePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        postServiceImpl.deletePost(postId, userDetails.getUser());
         return ResponseEntity.ok().body(new ApiResponseDto("해당 게시글의 삭제를 완료했습니다.", HttpStatus.OK.value()));
     }
 

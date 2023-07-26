@@ -5,9 +5,10 @@ import com.sparta.myvoyageblog.dto.PostResponseDto;
 import com.sparta.myvoyageblog.entity.Post;
 import com.sparta.myvoyageblog.entity.PostLike;
 import com.sparta.myvoyageblog.entity.User;
+import com.sparta.myvoyageblog.exception.NotFoundException;
+import com.sparta.myvoyageblog.exception.UnauthorizedException;
 import com.sparta.myvoyageblog.repository.PostLikeRepository;
 import com.sparta.myvoyageblog.repository.PostRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
@@ -50,37 +51,37 @@ public class PostServiceImpl implements PostService {
     // 선택한 게시글 및 댓글 조회
     @Override
     @Transactional(readOnly = true)
-    public List<Object> getPostById(Long id) {
+    public List<Object> getPostById(Long postId) {
         List<Object> postAndComments = new ArrayList<>();
-        postAndComments.add(new PostResponseDto(findPost(id)));
-        postAndComments.add(commentService.getCommentsByPostId(id));
+        postAndComments.add(new PostResponseDto(findPost(postId)));
+        postAndComments.add(commentService.getCommentsByPostId(postId));
         return postAndComments;
     }
 
     // 선택한 게시글 수정
     @Override
     @Transactional
-    public PostResponseDto updatePost(Long id, PostRequestDto requestDto, User user) {
+    public PostResponseDto updatePost(Long postId, PostRequestDto requestDto, User user) {
         // 다른 유저가 수정을 시도할 경우 예외 처리
-        if (!checkUser(id, user)) {
-            throw new IllegalArgumentException("작성자만 수정할 수 있습니다.");
+        if (!checkUser(postId, user)) {
+            throw new UnauthorizedException("작성자만 수정할 수 있습니다.");
         }
         // 오류가 나지 않을 경우 해당 게시글 수정
-        findPost(id).update(requestDto);
-        PostResponseDto postResponseDto = new PostResponseDto(findPost(id));
+        findPost(postId).update(requestDto);
+        PostResponseDto postResponseDto = new PostResponseDto(findPost(postId));
         return postResponseDto;
     }
 
     // 선택한 게시글 삭제
     @Override
     @Transactional
-    public void deletePost(Long id, @AuthenticationPrincipal User user) {
+    public void deletePost(Long postId, @AuthenticationPrincipal User user) {
         // 다른 유저가 삭제를 시도할 경우 예외 처리
-        if (!checkUser(id, user)) {
-            throw new IllegalArgumentException("작성자만 삭제할 수 있습니다.");
+        if (!checkUser(postId, user)) {
+            throw new UnauthorizedException("작성자만 삭제할 수 있습니다.");
         }
         // 오류가 나지 않을 경우 해당 게시글 삭제
-        postRepository.delete(findPost(id));
+        postRepository.delete(findPost(postId));
     }
 
     // 선택한 게시글 좋아요 기능 추가
@@ -90,7 +91,7 @@ public class PostServiceImpl implements PostService {
         Post post = findPost(postId);
         // 작성자가 좋아요를 시도할 경우 오류 코드 반환
         if (checkUser(postId, user)) {
-            throw new IllegalArgumentException("작성자는 좋아요를 누를 수 없습니다.");
+            throw new UnauthorizedException("작성자는 좋아요를 누를 수 없습니다.");
         }
         // 좋아요를 이미 누른 경우 오류 코드 반환
         if (findPostLike(user, post) != null) {
@@ -109,7 +110,7 @@ public class PostServiceImpl implements PostService {
         Post post = findPost(postId);
         // 작성자가 좋아요를 시도할 경우 오류 코드 반환
         if (checkUser(postId, user)) {
-            throw new IllegalArgumentException("작성자는 좋아요를 누를 수 없습니다.");
+            throw new UnauthorizedException("작성자는 좋아요를 누를 수 없습니다.");
         }
         // 좋아요를 이미 누른 경우 오류 코드 반환
         if (findPostLike(user, post) == null) {
@@ -122,9 +123,9 @@ public class PostServiceImpl implements PostService {
     }
 
     // id에 따른 게시글 찾기
-    private Post findPost(Long id) {
-        return postRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("선택한 게시글은 존재하지 않습니다.")
+    public Post findPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow(() ->
+                new NotFoundException("선택한 게시글은 존재하지 않습니다.")
         );
     }
 
@@ -136,10 +137,6 @@ public class PostServiceImpl implements PostService {
     // 선택한 게시글의 사용자가 맞는지 혹은 관리자인지 확인하기
     private boolean checkUser(Long selectId, User user) {
         Post post = findPost(selectId);
-        if (post.getUser().getUsername().equals(user.getUsername()) || user.getRole().getAuthority().equals("ROLE_ADMIN")) {
-            return true;
-        } else {
-            return false;
-        }
+        return post.getUser().getUsername().equals(user.getUsername()) || user.getRole().getAuthority().equals("ROLE_ADMIN");
     }
 }

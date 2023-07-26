@@ -1,7 +1,6 @@
 package com.sparta.myvoyageblog.exception;
 
 import com.sparta.myvoyageblog.dto.ApiResponseDto;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,8 +10,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
 	// 에러 처리
-	@ExceptionHandler(EntityNotFoundException.class)
-	public ResponseEntity<ApiResponseDto> handleEntityNotFoundException(EntityNotFoundException ex) {
+	@ExceptionHandler(NotFoundException.class)
+	public ResponseEntity<ApiResponseDto> handleNotFoundException(NotFoundException ex) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(new ApiResponseDto(ex.getMessage(), HttpStatus.NOT_FOUND.value()));
 	}
@@ -21,5 +20,11 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ApiResponseDto> handleIllegalArgumentException(IllegalArgumentException ex) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 				.body(new ApiResponseDto(ex.getMessage(), HttpStatus.BAD_REQUEST.value()));
+	}
+
+	@ExceptionHandler(UnauthorizedException.class)
+	public ResponseEntity<ApiResponseDto> handleUnauthorizedException(UnauthorizedException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+				.body(new ApiResponseDto(ex.getMessage(), HttpStatus.UNAUTHORIZED.value()));
 	}
 }
