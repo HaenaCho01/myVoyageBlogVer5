@@ -6,11 +6,10 @@ import com.sparta.myvoyageblog.entity.Post;
 import com.sparta.myvoyageblog.entity.PostLike;
 import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.exception.NotFoundException;
-import com.sparta.myvoyageblog.exception.UnauthorizedException;
+import com.sparta.myvoyageblog.exception.annotation.PostCheckUserNotEquals;
 import com.sparta.myvoyageblog.repository.PostLikeRepository;
 import com.sparta.myvoyageblog.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,12 +60,8 @@ public class PostServiceImpl implements PostService {
     // 선택한 게시글 수정
     @Override
     @Transactional
+    @PostCheckUserNotEquals // 다른 유저가 수정을 시도할 경우 예외 처리
     public PostResponseDto updatePost(Long postId, PostRequestDto requestDto, User user) {
-        // 다른 유저가 수정을 시도할 경우 예외 처리
-        if (!checkUser(postId, user)) {
-            throw new UnauthorizedException("작성자만 수정할 수 있습니다.");
-        }
-        // 오류가 나지 않을 경우 해당 게시글 수정
         findPost(postId).update(requestDto);
         PostResponseDto postResponseDto = new PostResponseDto(findPost(postId));
         return postResponseDto;
@@ -75,12 +70,8 @@ public class PostServiceImpl implements PostService {
     // 선택한 게시글 삭제
     @Override
     @Transactional
-    public void deletePost(Long postId, @AuthenticationPrincipal User user) {
-        // 다른 유저가 삭제를 시도할 경우 예외 처리
-        if (!checkUser(postId, user)) {
-            throw new UnauthorizedException("작성자만 삭제할 수 있습니다.");
-        }
-        // 오류가 나지 않을 경우 해당 게시글 삭제
+    @PostCheckUserNotEquals // 다른 유저가 삭제를 시도할 경우 예외 처리
+    public void deletePost(Long postId, User user) {
         postRepository.delete(findPost(postId));
     }
 
@@ -89,10 +80,6 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void postInsertLike(Long postId, User user) {
         Post post = findPost(postId);
-        // 작성자가 좋아요를 시도할 경우 오류 코드 반환
-        if (checkUser(postId, user)) {
-            throw new UnauthorizedException("작성자는 좋아요를 누를 수 없습니다.");
-        }
         // 좋아요를 이미 누른 경우 오류 코드 반환
         if (findPostLike(user, post) != null) {
             throw new IllegalArgumentException("좋아요를 이미 누르셨습니다.");
@@ -108,10 +95,6 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void postDeleteLike(Long postId, User user) {
         Post post = findPost(postId);
-        // 작성자가 좋아요를 시도할 경우 오류 코드 반환
-        if (checkUser(postId, user)) {
-            throw new UnauthorizedException("작성자는 좋아요를 누를 수 없습니다.");
-        }
         // 좋아요를 이미 누른 경우 오류 코드 반환
         if (findPostLike(user, post) == null) {
             throw new IllegalArgumentException("좋아요를 누르시지 않았습니다.");
@@ -132,11 +115,5 @@ public class PostServiceImpl implements PostService {
     // 사용자와 댓글에 따른 좋아요 찾기
     private PostLike findPostLike(User user, Post post) {
         return postLikeRepository.findByUserAndPost(user,post).orElse(null);
-    }
-
-    // 선택한 게시글의 사용자가 맞는지 혹은 관리자인지 확인하기
-    private boolean checkUser(Long selectId, User user) {
-        Post post = findPost(selectId);
-        return post.getUser().getUsername().equals(user.getUsername()) || user.getRole().getAuthority().equals("ROLE_ADMIN");
     }
 }

@@ -7,12 +7,12 @@ import com.sparta.myvoyageblog.entity.CommentLike;
 import com.sparta.myvoyageblog.entity.Post;
 import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.exception.NotFoundException;
-import com.sparta.myvoyageblog.exception.UnauthorizedException;
+import com.sparta.myvoyageblog.exception.annotation.CommentCheckPostId;
+import com.sparta.myvoyageblog.exception.annotation.CommentCheckUserNotEquals;
 import com.sparta.myvoyageblog.repository.CommentLikeRepository;
 import com.sparta.myvoyageblog.repository.CommentRepository;
 import com.sparta.myvoyageblog.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,16 +47,9 @@ public class CommentServiceImpl implements CommentService {
 	// 선택한 댓글 수정
 	@Override
     @Transactional
+	@CommentCheckPostId // postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
+	@CommentCheckUserNotEquals // 다른 유저가 수정을 시도할 경우 예외 처리
     public CommentResponseDto updateComment(Long postId, Long commentId, CommentRequestDto requestDto, User user) {
-		// postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
-		if (postId != findComment(commentId).getPost().getId()) {
-			throw new NotFoundException("해당 페이지를 찾을 수 없습니다.");
-		}
-		// 다른 유저가 수정을 시도할 경우 예외 처리
-		if (!checkUser(commentId, user)) {
-			throw new UnauthorizedException("작성자만 수정할 수 있습니다.");
-		}
-		// 오류가 나지 않을 경우 해당 댓글 수정
 		findComment(commentId).update(requestDto);
 		CommentResponseDto commentResponseDto = new CommentResponseDto(findComment(commentId));
 		return commentResponseDto;
@@ -65,32 +58,18 @@ public class CommentServiceImpl implements CommentService {
 	// 선택한 댓글 삭제
 	@Override
 	@Transactional
-	public void deleteComment(Long postId, Long commentId, @AuthenticationPrincipal User user) {
-		// postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
-		if (postId != findComment(commentId).getPost().getId()) {
-			throw new NotFoundException("해당 페이지를 찾을 수 없습니다.");
-		}
-		// 다른 유저가 삭제를 시도할 경우 예외 처리
-		if (!checkUser(commentId, user)) {
-			throw new UnauthorizedException("작성자만 삭제할 수 있습니다.");
-		}
-		// 오류가 나지 않을 경우 해당 댓글 삭제
+	@CommentCheckPostId // postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
+	@CommentCheckUserNotEquals // 다른 유저가 삭제를 시도할 경우 예외 처리
+	public void deleteComment(Long postId, Long commentId, User user) {
 		commentRepository.delete(findComment(commentId));
 	}
 
 	// 선택한 댓글 좋아요 기능 추가
 	@Override
 	@Transactional
+	@CommentCheckPostId // postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
 	public void commentInsertLike(Long postId, Long commentId, User user) {
 		Comment comment = findComment(commentId);
-		// postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
-		if (postId != comment.getPost().getId()) {
-			throw new NotFoundException("해당 페이지를 찾을 수 없습니다.");
-		}
-		// 작성자가 좋아요를 시도할 경우 오류 코드 반환
-		if (checkUser(commentId, user)) {
-			throw new UnauthorizedException("작성자는 좋아요를 누를 수 없습니다.");
-		}
 		// 좋아요를 이미 누른 경우 오류 코드 반환
 		if (findCommentLike(user, comment) != null) {
 			throw new IllegalArgumentException("좋아요를 이미 누르셨습니다.");
@@ -104,16 +83,9 @@ public class CommentServiceImpl implements CommentService {
 	// 선택한 댓글 좋아요 취소
 	@Override
 	@Transactional
+	@CommentCheckPostId // postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
 	public void commentDeleteLike(Long postId, Long commentId, User user) {
 		Comment comment = findComment(commentId);
-		// postId 받은 것과 comment DB에 저장된 postId가 다를 경우 예외 처리
-		if (postId != comment.getPost().getId()) {
-			throw new NotFoundException("해당 페이지를 찾을 수 없습니다.");
-		}
-		// 작성자가 좋아요를 시도할 경우 오류 코드 반환
-		if (checkUser(commentId, user)) {
-			throw new UnauthorizedException("작성자는 좋아요를 누를 수 없습니다.");
-		}
 		// 좋아요를 누른 적이 없는 경우 오류 코드 반환
 		if (findCommentLike(user, comment) == null) {
 			throw new IllegalArgumentException("좋아요를 누르시지 않았습니다.");
@@ -124,7 +96,7 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	// id에 따른 댓글 찾기
-	private Comment findComment(Long commentId) {
+	public Comment findComment(Long commentId) {
 		return commentRepository.findById(commentId).orElseThrow(() ->
 				new NotFoundException("선택한 댓글은 존재하지 않습니다.")
 		);
@@ -141,10 +113,4 @@ public class CommentServiceImpl implements CommentService {
 				new NotFoundException("선택한 게시글은 존재하지 않습니다.")
 		);
 	}
-
-	// 선택한 댓글의 사용자가 맞는지 혹은 관리자인지 확인하기
-    private boolean checkUser(Long selectId, User user) {
-        Comment comment = findComment(selectId);
-        return comment.getUser().getUsername().equals(user.getUsername()) || user.getRole().getAuthority().equals("ROLE_ADMIN");
-    }
 }
