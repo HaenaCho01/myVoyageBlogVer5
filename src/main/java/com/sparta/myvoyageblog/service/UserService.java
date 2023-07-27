@@ -36,6 +36,10 @@ public class UserService {
             throw new IllegalArgumentException("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
         }
 
+        if (requestDto.getPassword().contains(username)) {
+            throw new IllegalArgumentException("비밀번호에는 닉네임과 같은 값이 포함될 수 없습니다.");
+        }
+
         // 사용자 ROLE 확인
         UserRoleEnum role = UserRoleEnum.USER;
         if (requestDto.isAdmin()) {
