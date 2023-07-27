@@ -30,6 +30,13 @@ public interface PostService {
 	List<Object> getPostById(Long id);
 
 	/**
+	 * 키워드 검색으로 게시글 조회
+	 * @param keyword 찾고자 하는 키워드
+	 * @return 제목이나 내용에 keyword 가 들어간 게시글 목록
+	 */
+	List<PostResponseDto> searchPostsByKeyword(String keyword);
+
+	/**
 	 * 선택한 게시글 수정
 	 * @param id 게시글 번호
 	 * @param requestDto 게시글 수정 요청정보

@@ -9,12 +9,16 @@ import com.sparta.myvoyageblog.exception.NotFoundException;
 import com.sparta.myvoyageblog.exception.annotation.PostCheckUserNotEquals;
 import com.sparta.myvoyageblog.repository.PostLikeRepository;
 import com.sparta.myvoyageblog.repository.PostRepository;
+import com.sparta.myvoyageblog.repository.PostRepositoryQueryImpl;
+import com.sparta.myvoyageblog.repository.PostSearchCond;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,9 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final CommentServiceImpl commentService;
     private final PostLikeRepository postLikeRepository;
+
+    @Autowired
+    private final PostRepositoryQueryImpl postRepositoryQueryImpl;
 
     // 게시글 작성
     @Override
@@ -55,6 +62,25 @@ public class PostServiceImpl implements PostService {
         postAndComments.add(new PostResponseDto(findPost(postId)));
         postAndComments.add(commentService.getCommentsByPostId(postId));
         return postAndComments;
+    }
+
+    // 키워드 검색으로 게시글 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<PostResponseDto> searchPostsByKeyword(String keyword) {
+        // PostSearchCond 객체를 생성하고 키워드를 설정
+        PostSearchCond searchCond = new PostSearchCond();
+        searchCond.setKeyword(keyword);
+
+        // PostRepositoryQuery 빈의 search 메서드를 호출하여 검색 결과를 받아옴
+        List<Post> searchedPosts = postRepositoryQueryImpl.search(searchCond);
+
+        // 검색 결과를 PostResponseDto 리스트로 변환하여 반환
+        List<PostResponseDto> postResponseDtos = searchedPosts.stream()
+                .map(PostResponseDto::new)
+                .collect(Collectors.toList());
+
+        return postResponseDtos;
     }
 
     // 선택한 게시글 수정

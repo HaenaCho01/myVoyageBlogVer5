@@ -21,20 +21,26 @@ public class PostController {
 
     // 게시글 작성
     @PostMapping("/posts")
-    public PostResponseDto createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return postServiceImpl.createPost(requestDto, userDetails.getUser());
+    public ResponseEntity<ApiResponseDto> createPost(@RequestBody PostRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok().body(postServiceImpl.createPost(requestDto, userDetails.getUser()));
     }
 
     // 전체 게시글 목록 조회
     @GetMapping("/posts")
-    public List<List<Object>> getPosts() {
-        return postServiceImpl.getPosts();
+    public ResponseEntity<List<List<Object>>> getPosts() {
+        return ResponseEntity.ok().body(postServiceImpl.getPosts());
     }
 
     // 선택한 게시글 조회
     @GetMapping("/posts/{postId}")
-    public List<Object> getPostById(@PathVariable Long postId) {
-        return postServiceImpl.getPostById(postId);
+    public ResponseEntity<List<Object>> getPostById(@PathVariable Long postId) {
+        return ResponseEntity.ok().body(postServiceImpl.getPostById(postId));
+    }
+
+    // 키워드 검색으로 게시글 조회
+    @GetMapping("/posts/search")
+    public ResponseEntity<List<PostResponseDto>> searchPostsByKeyword(@RequestParam("keyword") String keyword) {
+        return ResponseEntity.ok().body(postServiceImpl.searchPostsByKeyword(keyword));
     }
 
     // 선택한 게시글 수정
