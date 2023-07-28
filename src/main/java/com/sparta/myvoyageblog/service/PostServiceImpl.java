@@ -1,5 +1,7 @@
 package com.sparta.myvoyageblog.service;
 
+import com.sparta.myvoyageblog.dto.PageDto;
+import com.sparta.myvoyageblog.dto.PostListResponseDto;
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.dto.PostResponseDto;
 import com.sparta.myvoyageblog.entity.Post;
@@ -13,10 +15,10 @@ import com.sparta.myvoyageblog.repository.PostRepositoryQueryImpl;
 import com.sparta.myvoyageblog.repository.PostSearchCond;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,44 +45,38 @@ public class PostServiceImpl implements PostService {
     // 전체 게시글 및 댓글 목록 조회
     @Override
     @Transactional(readOnly = true)
-    public List<List<Object>> getPosts() {
-        List<Post> postList = postRepository.findAllByOrderByCreatedAtDesc();
+    public PostListResponseDto getPosts(PageDto pageDto) {
+        List<PostResponseDto> postResponseDtoList = postRepository.findAllByOrderByCreatedAtDesc(pageDto.toPageable()).stream()
+                .map(PostResponseDto::new)
+                .collect(Collectors.toList());
 
-        List<List<Object>> postAndCommentsList = new ArrayList<>();
-
-        for (int i = 0; i < postList.size(); i++) {
-            postAndCommentsList.add(getPostById(postList.get(i).getId()));
-        }
-        return postAndCommentsList;
+        return new PostListResponseDto(postResponseDtoList);
     }
 
     // 선택한 게시글 및 댓글 조회
     @Override
     @Transactional(readOnly = true)
-    public List<Object> getPostById(Long postId) {
-        List<Object> postAndComments = new ArrayList<>();
-        postAndComments.add(new PostResponseDto(findPost(postId)));
-        postAndComments.add(commentService.getCommentsByPostId(postId));
-        return postAndComments;
+    public PostResponseDto getPostById(Long postId) {
+        return new PostResponseDto(findPost(postId));
     }
 
     // 키워드 검색으로 게시글 조회
     @Override
     @Transactional(readOnly = true)
-    public List<PostResponseDto> searchPostsByKeyword(String keyword) {
+    public PostListResponseDto searchPostsByKeyword(String keyword, PageDto pageDto) {
         // PostSearchCond 객체를 생성하고 키워드를 설정
         PostSearchCond searchCond = new PostSearchCond();
         searchCond.setKeyword(keyword);
 
         // PostRepositoryQuery 빈의 search 메서드를 호출하여 검색 결과를 받아옴
-        List<Post> searchedPosts = postRepositoryQueryImpl.search(searchCond);
+        Page<Post> searchedPosts = postRepositoryQueryImpl.search(searchCond, pageDto.toPageable());
 
         // 검색 결과를 PostResponseDto 리스트로 변환하여 반환
-        List<PostResponseDto> postResponseDtos = searchedPosts.stream()
+        List<PostResponseDto> postResponseDtoList = searchedPosts.stream()
                 .map(PostResponseDto::new)
                 .collect(Collectors.toList());
 
-        return postResponseDtos;
+        return new PostListResponseDto(postResponseDtoList);
     }
 
     // 선택한 게시글 수정

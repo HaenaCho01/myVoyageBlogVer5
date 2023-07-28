@@ -1,11 +1,12 @@
 package com.sparta.myvoyageblog.service;
 
+import com.sparta.myvoyageblog.dto.PageDto;
+import com.sparta.myvoyageblog.dto.PostListResponseDto;
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.dto.PostResponseDto;
 import com.sparta.myvoyageblog.entity.User;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface PostService {
 	/**
@@ -20,21 +21,22 @@ public interface PostService {
 	 * 전체 게시글 및 댓글 목록 조회
 	 * @return 전체 게시글 및 댓글 목록
 	 */
-	List<List<Object>> getPosts();
+	@Transactional(readOnly = true)
+	PostListResponseDto getPosts(PageDto pageDto);
 
 	/**
 	 * 선택한 게시글 및 댓글 목록 조회
 	 * @param id 게시글 번호
 	 * @return 선택한 게시글 및 댓글 목록
 	 */
-	List<Object> getPostById(Long id);
+	PostResponseDto getPostById(Long id);
 
 	/**
 	 * 키워드 검색으로 게시글 조회
 	 * @param keyword 찾고자 하는 키워드
 	 * @return 제목이나 내용에 keyword 가 들어간 게시글 목록
 	 */
-	List<PostResponseDto> searchPostsByKeyword(String keyword);
+	PostListResponseDto searchPostsByKeyword(String keyword, PageDto pageDto);
 
 	/**
 	 * 선택한 게시글 수정

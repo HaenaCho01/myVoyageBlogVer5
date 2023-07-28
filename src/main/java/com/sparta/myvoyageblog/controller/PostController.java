@@ -1,6 +1,7 @@
 package com.sparta.myvoyageblog.controller;
 
 import com.sparta.myvoyageblog.dto.ApiResponseDto;
+import com.sparta.myvoyageblog.dto.PageDto;
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.dto.PostResponseDto;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
@@ -10,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,20 +26,30 @@ public class PostController {
 
     // 전체 게시글 목록 조회
     @GetMapping("/posts")
-    public ResponseEntity<List<List<Object>>> getPosts() {
-        return ResponseEntity.ok().body(postServiceImpl.getPosts());
+    public ResponseEntity<ApiResponseDto> getPosts(
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "size", defaultValue = "5") Integer size) {
+        PageDto pageDto = PageDto.builder().currentPage(page).size(size).build();
+        return ResponseEntity.ok().body(postServiceImpl.getPosts(pageDto));
     }
 
     // 선택한 게시글 조회
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<List<Object>> getPostById(@PathVariable Long postId) {
+    public ResponseEntity<ApiResponseDto> getPostById(@PathVariable Long postId) {
         return ResponseEntity.ok().body(postServiceImpl.getPostById(postId));
     }
 
     // 키워드 검색으로 게시글 조회
     @GetMapping("/posts/search")
-    public ResponseEntity<List<PostResponseDto>> searchPostsByKeyword(@RequestParam("keyword") String keyword) {
-        return ResponseEntity.ok().body(postServiceImpl.searchPostsByKeyword(keyword));
+    public ResponseEntity<ApiResponseDto> searchPostsByKeyword(
+            @RequestParam(value = "keyword", defaultValue = "") String keyword,
+            @RequestParam(value = "page", defaultValue = "1") Integer page,
+            @RequestParam(value = "size", defaultValue = "5") Integer size) {
+        if (keyword.equals("")) {
+            throw new IllegalArgumentException("키워드를 입력해주세요.");
+        }
+        PageDto pageDto = PageDto.builder().currentPage(page).size(size).build();
+        return ResponseEntity.ok().body(postServiceImpl.searchPostsByKeyword(keyword, pageDto));
     }
 
     // 선택한 게시글 수정
