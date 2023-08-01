@@ -1,11 +1,15 @@
 package com.sparta.myvoyageblog.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class SignupRequestDto {
     @NotBlank
     @Size(min = 3, max = 10)
