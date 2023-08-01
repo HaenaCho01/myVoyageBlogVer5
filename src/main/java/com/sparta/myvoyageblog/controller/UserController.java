@@ -2,7 +2,7 @@ package com.sparta.myvoyageblog.controller;
 
 import com.sparta.myvoyageblog.dto.ApiResponseDto;
 import com.sparta.myvoyageblog.dto.SignupRequestDto;
-import com.sparta.myvoyageblog.service.UserService;
+import com.sparta.myvoyageblog.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     // 회원가입
     @PostMapping("/user/signup")

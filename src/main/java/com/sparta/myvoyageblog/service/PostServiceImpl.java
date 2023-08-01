@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
-    private final CommentServiceImpl commentService;
     private final PostLikeRepository postLikeRepository;
 
     @Autowired
