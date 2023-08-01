@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
@@ -93,12 +92,13 @@ class PostControllerTest {
 		String title = "Test title";
 		String content = "Test content";
 
-		PostRequestDto requestDto = new PostRequestDto(title, content);
-		String postInfo = mapper.writeValueAsString(requestDto);
+		String body = mapper.writeValueAsString(
+				PostRequestDto.builder().content(content).title(title).build()
+		);
 
 		//when - then
 		mvc.perform(post(BASE_URL + "/posts")
-						.content(postInfo) //HTTP Body에 데이터를 담는다
+						.content(body) //HTTP Body에 데이터를 담는다
 						.contentType(MediaType.APPLICATION_JSON) //보내는 데이터의 타입을 명시
 						.accept(MediaType.APPLICATION_JSON) // 받는 데이터의 타입을 명시
 						.principal(mockPrincipal)
