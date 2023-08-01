@@ -9,7 +9,7 @@ import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.entity.UserRoleEnum;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import com.sparta.myvoyageblog.service.PostServiceImpl;
-import com.sparta.myvoyageblog.service.UserService;
+import com.sparta.myvoyageblog.service.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -61,7 +61,7 @@ class PostControllerTest {
 	PostServiceImpl postServiceImpl;
 
 	@MockBean
-	UserService userService;
+	UserServiceImpl userService;
 
 	private Principal mockPrincipal;
 
@@ -74,6 +74,7 @@ class PostControllerTest {
 				.build();
 	}
 
+	@BeforeEach
 	private void mockUserSetup() {
 		// Mock 테스트 유져 생성
 		String username = "sollertia4351";
@@ -88,7 +89,6 @@ class PostControllerTest {
 	@DisplayName("게시글 저장 테스트")
 	void save_test() throws Exception {
 		//given
-		this.mockUserSetup();
 		String title = "Test title";
 		String content = "Test content";
 
