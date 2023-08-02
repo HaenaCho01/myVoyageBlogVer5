@@ -2,8 +2,6 @@ package com.sparta.myvoyageblog.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.myvoyageblog.config.WebSecurityConfig;
-import com.sparta.myvoyageblog.controller.PostController;
-import com.sparta.myvoyageblog.controller.UserController;
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.entity.UserRoleEnum;
