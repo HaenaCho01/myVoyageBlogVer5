@@ -1,4 +1,4 @@
-package com.sparta.myvoyageblog.mvc;
+package com.sparta.myvoyageblog.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sparta.myvoyageblog.config.WebSecurityConfig;
@@ -7,6 +7,7 @@ import com.sparta.myvoyageblog.controller.UserController;
 import com.sparta.myvoyageblog.dto.PostRequestDto;
 import com.sparta.myvoyageblog.entity.User;
 import com.sparta.myvoyageblog.entity.UserRoleEnum;
+import com.sparta.myvoyageblog.mvc.MockSpringSecurityFilter;
 import com.sparta.myvoyageblog.security.UserDetailsImpl;
 import com.sparta.myvoyageblog.service.PostServiceImpl;
 import com.sparta.myvoyageblog.service.UserServiceImpl;
