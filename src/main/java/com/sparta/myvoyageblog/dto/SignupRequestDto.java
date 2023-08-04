@@ -8,8 +8,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
+//@Builder
+//@AllArgsConstructor
 public class SignupRequestDto {
     @NotBlank
     @Size(min = 3, max = 10)

@@ -40,6 +40,8 @@ public class QPost extends EntityPathBase<Post> {
 
     public final ListPath<PostLike, QPostLike> postLikeList = this.<PostLike, QPostLike>createList("postLikeList", PostLike.class, QPostLike.class, PathInits.DIRECT2);
 
+    public final ListPath<PostMedia, QPostMedia> postMediaList = this.<PostMedia, QPostMedia>createList("postMediaList", PostMedia.class, QPostMedia.class, PathInits.DIRECT2);
+
     public final StringPath title = createString("title");
 
     public final QUser user;
